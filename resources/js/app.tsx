@@ -2,22 +2,33 @@ import { createInertiaApp } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
+import { initializeLanguage } from '@/lib/i18n';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 
-const appName = 'Firman Maulana Syabani | Fullstack Developer';
+const appName = 'Firman Maulana Syabani | IT Developer';
+
+initializeLanguage();
 
 void createInertiaApp({
-    title: (title) => (title === '404' ? '404 | Firman Maulana Syabani' : appName),
+    title: (title) =>
+        title === '404' ? '404 | Firman Maulana Syabani' : appName,
     layout: (name) => {
-        switch (true) {
-            case name === 'welcome':
-                return null;
-            case name.startsWith('auth/'):
-                return AuthLayout;
-            default:
-                return AppLayout;
+        if (name.startsWith('auth/')) {
+            return AuthLayout;
         }
+
+        if (
+            name === 'dashboard' ||
+            name === 'cms' ||
+            name.startsWith('cms/') ||
+            name === 'admin' ||
+            name.startsWith('admin/')
+        ) {
+            return AppLayout;
+        }
+
+        return undefined;
     },
     strictMode: true,
     withApp(app) {
@@ -29,7 +40,7 @@ void createInertiaApp({
         );
     },
     progress: {
-        color: '#4B5563',
+        color: '#000000',
     },
 });
 

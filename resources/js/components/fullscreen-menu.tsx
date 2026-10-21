@@ -21,7 +21,7 @@ const pageLinks = [
     { key: 'home', href: '/' },
     { key: 'about', href: '/#tentang' },
     { key: 'projects', href: '/#proyek' },
-    { key: 'skills', href: '/#keahlian' },
+    { key: 'journey', href: '/#perjalanan' },
     { key: 'contact', href: '/#kontak' },
 ] as const;
 
@@ -53,18 +53,23 @@ function MenuPhoto({ src }: { src: string }) {
 }
 
 function PhotoColumn({ reverse = false }: { reverse?: boolean }) {
-    const repeatedImages = [...menuImages, ...menuImages];
-
     return (
         <div
             aria-hidden="true"
             className={`menu-photo-column absolute w-[19.5vw] max-w-[380px] min-w-[120px] ${reverse ? 'left-[29%]' : 'left-[6%]'}`}
         >
             <div
-                className={`menu-photo-track flex flex-col gap-[4vh] ${reverse ? 'menu-photo-track-reverse' : ''}`}
+                className={`menu-photo-track flex flex-col ${reverse ? 'menu-photo-track-reverse' : ''}`}
             >
-                {repeatedImages.map((src, index) => (
-                    <MenuPhoto key={`${src}-${index}`} src={src} />
+                {[0, 1].map((set) => (
+                    <div
+                        key={set}
+                        className="menu-photo-set flex flex-col gap-[4vh] pb-[4vh]"
+                    >
+                        {menuImages.map((src, index) => (
+                            <MenuPhoto key={`${src}-${index}`} src={src} />
+                        ))}
+                    </div>
                 ))}
             </div>
         </div>
@@ -256,7 +261,7 @@ export function FullscreenMenu({
                                                     | 'home'
                                                     | 'tentang'
                                                     | 'proyek'
-                                                    | 'keahlian'
+                                                    | 'perjalanan'
                                                     | 'kontak',
                                             );
                                         }
@@ -271,7 +276,7 @@ export function FullscreenMenu({
                                                 section === 'home' ||
                                                 section === 'tentang' ||
                                                 section === 'proyek' ||
-                                                section === 'keahlian' ||
+                                                section === 'perjalanan' ||
                                                 section === 'kontak'
                                             ) {
                                                 goToSection(section);

@@ -61,9 +61,18 @@ function targetForSection(id: ActiveSection): number | null {
         );
     }
 
+    if (id === 'proyek') {
+        const trigger = ScrollTrigger.getById('projects-handoff');
+        if (trigger) return trigger.end;
+    }
+
     const target = document.getElementById(id);
 
     if (!target) return null;
+
+    if (id === 'proyek') {
+        return target.getBoundingClientRect().top + window.scrollY;
+    }
 
     const headerHeight =
         document

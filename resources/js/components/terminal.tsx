@@ -22,7 +22,6 @@ type OutputKey =
     | keyof typeof ABOUT_CONTENT
     | 'help'
     | 'clear'
-    | 'welcome'
     | 'unknown'
     | 'fastfetch'
     | 'ls'
@@ -169,11 +168,6 @@ function resolveCommand(rawCommand: string): {
 
 function getOutput(entry: TerminalEntry, language: 'id' | 'en'): string {
     const { outputKey, command } = entry;
-    if (outputKey === 'welcome') {
-        return language === 'id'
-            ? 'Shell portfolio bergaya Arch. Klik di mana saja atau ketik `help`.'
-            : 'Arch-style portfolio shell. Click anywhere or type `help`.';
-    }
     if (outputKey === 'unknown') return `bash: ${command}: command not found`;
     if (outputKey === 'fastfetch') {
         return 'visitor@archlinux\n----------------\nName:     Firman Maulana Syabani\nRole:     IT Developer\nStack:    Laravel, React, TypeScript, Inertia, Tailwind CSS, MySQL\nLocation: [Kota], Indonesia\nContact:  hello@example.com';
@@ -245,7 +239,6 @@ export default function Terminal({
         structured: boolean;
     } | null>(null);
     const rafRef = useRef(0);
-    const greetedRef = useRef(false);
     const firstInteractionRef = useRef(false);
     const historyRef = useRef<string[]>([]);
 
@@ -332,18 +325,6 @@ export default function Terminal({
     );
 
     useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
-
-    useEffect(() => {
-        if (active && !greetedRef.current) {
-            greetedRef.current = true;
-            const welcome: TerminalEntry = {
-                command: '',
-                outputKey: 'welcome',
-            };
-            setEntries([welcome]);
-            typeText(outputFor(welcome));
-        }
-    }, [active, outputFor, typeText]);
 
     useEffect(() => {
         if (active) return;

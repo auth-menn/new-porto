@@ -19,7 +19,8 @@ export default function Login({ status }: Props) {
             <Head><meta name="robots" content="noindex, nofollow" /></Head>
 
             <Form
-                {...store.form()}
+                action={store.url()}
+                method="post"
                 resetOnSuccess={['password']}
                 className="flex flex-col gap-6"
             >

@@ -3,11 +3,31 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="Portfolio of Firman Maulana Syabani, a fullstack developer.">
-        <meta property="og:title" content="Firman Maulana Syabani | Fullstack Developer">
-        <meta property="og:description" content="Portfolio of Firman Maulana Syabani, a fullstack developer.">
+        <meta name="description" content="Portfolio of Firman Maulana Syabani, an IT developer.">
+        <meta property="og:title" content="Firman Maulana Syabani | IT Developer">
+        <meta property="og:description" content="Portfolio of Firman Maulana Syabani, an IT developer.">
         <meta property="og:type" content="website">
         <meta name="robots" content="index, follow">
+        <link
+            rel="preload"
+            href="/fonts/michroma-latin-400-normal.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        >
+
+        <script>
+            (function () {
+                document.documentElement.classList.add('js');
+
+                try {
+                    const language = localStorage.getItem('language');
+                    document.documentElement.lang = language === 'en' ? 'en' : 'id';
+                } catch {
+                    document.documentElement.lang = 'id';
+                }
+            })();
+        </script>
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
@@ -26,12 +46,20 @@
 
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
+            @font-face {
+                font-family: 'Michroma';
+                font-style: normal;
+                font-weight: 400;
+                font-display: swap;
+                src: url('{{ asset('fonts/michroma-latin-400-normal.woff2') }}') format('woff2');
+            }
+
             html {
-                background-color: oklch(1 0 0);
+                background-color: #ffffff;
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #000000;
             }
         </style>
 
@@ -44,7 +72,7 @@
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Firman Maulana Syabani | Fullstack Developer') }}</title>
+            <title>{{ config('app.name', 'Firman Maulana Syabani | IT Developer') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

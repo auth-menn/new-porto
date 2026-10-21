@@ -26,7 +26,6 @@ export type SyntaxColor =
 export type TerminalSegment = { t: string; c?: SyntaxColor };
 export type TerminalOutputKind =
     | AboutCommand
-    | 'welcome'
     | 'unknown'
     | 'ls'
     | 'whoami'
@@ -85,16 +84,6 @@ export function tokenizeTerminalLine(
     text: string,
     kind: TerminalOutputKind,
 ): TerminalSegment[] {
-    if (kind === 'welcome') {
-        return text
-            .split(/(`help`)/g)
-            .map((part) =>
-                part === '`help`'
-                    ? { t: part, c: 'command' }
-                    : { t: part, c: 'comment' },
-            );
-    }
-
     if (kind === 'unknown' || kind === 'sudo') {
         return [{ t: text, c: 'error' }];
     }

@@ -14,6 +14,8 @@ import { useGSAP } from '@gsap/react';
 import { router } from '@inertiajs/react';
 import { ArrowDown, Database } from 'lucide-react';
 import { ProjectSummary } from '@/components/project-summary';
+import { ProjectShowcase } from '@/components/project-showcase';
+import { JourneyShowcase } from '@/components/journey-showcase';
 import { ABOUT_CONTENT } from '@/data/about';
 import { ABOUT_CONFIG } from '@/data/about-config';
 import { setScrollActiveSection } from '@/hooks/use-active-section';
@@ -263,6 +265,9 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
     const initialAboutHashRef = useRef(
         typeof window !== 'undefined' && window.location.hash === '#tentang',
     );
+    const initialProjectsHashRef = useRef(
+        typeof window !== 'undefined' && window.location.hash === '#proyek',
+    );
     const markTerminalReady = useCallback(() => setTerminalReady(true), []);
     const { language, t } = useLang();
     const aboutSummary = ABOUT_CONTENT.about[language].join(' ');
@@ -274,14 +279,54 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
         window.history.scrollRestoration = 'manual';
         let initialVisitPending = true;
         let userInteracted = false;
+        let projectJumpFrame = 0;
+
+        const jumpToProjects = () => {
+            let attempts = 0;
+            const placeAtProjects = () => {
+                const trigger = ScrollTrigger.getById('projects-handoff');
+                const section = document.getElementById('proyek');
+                if (!trigger && attempts < 120) {
+                    attempts += 1;
+                    projectJumpFrame =
+                        window.requestAnimationFrame(placeAtProjects);
+                    return;
+                }
+
+                ScrollTrigger.refresh();
+                const refreshedTrigger =
+                    ScrollTrigger.getById('projects-handoff');
+                window.scrollTo({
+                    top:
+                        refreshedTrigger?.end ??
+                        (section
+                            ? section.getBoundingClientRect().top +
+                              window.scrollY
+                            : 0),
+                    behavior: 'instant',
+                });
+                setHeroEntered(true);
+            };
+
+            projectJumpFrame = window.requestAnimationFrame(placeAtProjects);
+        };
 
         const jumpToInitialState = (preserveInitialHash = false) => {
             const scene = sceneRef.current;
+            const isProjects =
+                window.location.hash === '#proyek' ||
+                ((initialVisitPending || preserveInitialHash) &&
+                    initialProjectsHashRef.current);
             const isAbout =
                 window.location.hash === '#tentang' ||
                 ((initialVisitPending || preserveInitialHash) &&
                     initialAboutHashRef.current);
             setDirectAboutVisit(isAbout);
+
+            if (isProjects) {
+                jumpToProjects();
+                return;
+            }
 
             if (isAbout && scene) {
                 const scrollLength = Math.max(
@@ -312,11 +357,29 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
         };
         const correctInitialAboutScroll = () => {
             const scene = sceneRef.current;
+            const projectTrigger = ScrollTrigger.getById('projects-handoff');
+            const projectSection = document.getElementById('proyek');
+            const expectedProjectScroll =
+                projectTrigger?.end ??
+                (projectSection
+                    ? projectSection.getBoundingClientRect().top +
+                      window.scrollY
+                    : 0);
             const expectedAboutScroll = scene
                 ? scene.offsetTop +
                   Math.max(0, scene.scrollHeight - window.innerHeight) *
                       ABOUT_CONFIG.restAt
                 : 0;
+
+            if (
+                initialVisitPending &&
+                !userInteracted &&
+                initialProjectsHashRef.current &&
+                Math.abs(window.scrollY - expectedProjectScroll) > 2
+            ) {
+                jumpToProjects();
+                return;
+            }
 
             if (
                 initialVisitPending &&
@@ -351,6 +414,7 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
 
         return () => {
             window.clearTimeout(fallbackTimer);
+            window.cancelAnimationFrame(projectJumpFrame);
             removeFinishListener();
             window.removeEventListener('wheel', markUserInteracted);
             window.removeEventListener('touchstart', markUserInteracted);
@@ -391,9 +455,17 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
             | 'home'
             | 'tentang'
             | 'proyek'
-            | 'keahlian'
+            | 'perjalanan'
             | 'kontak' =
-            window.location.hash === '#tentang' ? 'tentang' : 'home';
+            window.location.hash === '#tentang'
+                ? 'tentang'
+                : window.location.hash === '#proyek'
+                  ? 'proyek'
+                  : window.location.hash === '#perjalanan'
+                    ? 'perjalanan'
+                    : window.location.hash === '#kontak'
+                      ? 'kontak'
+                      : 'home';
         let settleTimer = 0;
 
         const updateActiveSection = () => {
@@ -406,10 +478,42 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                 0,
                 Math.min(1, (window.scrollY - sceneTop) / scrollLength),
             );
+            const projectsTrigger = ScrollTrigger.getById('projects-handoff');
+            const projectsSection = document.getElementById('proyek');
+            const projectsBounds = projectsSection?.getBoundingClientRect();
+            const projectsVisible =
+                Boolean(projectsBounds) &&
+                projectsBounds!.top < window.innerHeight &&
+                projectsBounds!.bottom > 0;
+            const journeySection = document.getElementById('perjalanan');
+            const journeyBounds = journeySection?.getBoundingClientRect();
+            const journeyVisible =
+                Boolean(journeyBounds) &&
+                journeyBounds!.top < window.innerHeight * 0.55 &&
+                journeyBounds!.bottom > window.innerHeight * 0.45;
+            const projectsProgress = projectsTrigger?.progress ?? 0;
+            const projectThreshold = activeSection === 'proyek' ? 0.55 : 0.65;
+
+            if (projectsVisible && projectsProgress >= projectThreshold) {
+                activeSection = 'proyek';
+            } else if (activeSection === 'proyek') {
+                activeSection = 'tentang';
+            }
+            if (journeyVisible) {
+                activeSection = 'perjalanan';
+            } else if (
+                activeSection === 'perjalanan' &&
+                journeyBounds &&
+                journeyBounds.top >= window.innerHeight * 0.55
+            ) {
+                activeSection = projectsVisible ? 'proyek' : 'tentang';
+            }
             const threshold = ABOUT_CONFIG.activeAboutAt;
             const hysteresis = ABOUT_CONFIG.activeAboutHysteresis;
 
-            if (progress < threshold - hysteresis) {
+            if (activeSection === 'proyek' || activeSection === 'perjalanan') {
+                // Keep the Projects marker while its handoff section is active.
+            } else if (progress < threshold - hysteresis) {
                 activeSection = 'home';
             } else if (
                 (activeSection === 'home' || activeSection === 'tentang') &&
@@ -465,7 +569,7 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
             { rootMargin: '-45% 0px -45% 0px' },
         );
 
-        for (const id of ['proyek', 'keahlian', 'kontak'] as const) {
+        for (const id of ['perjalanan', 'kontak'] as const) {
             const target = document.getElementById(id);
             if (target) observer.observe(target);
         }
@@ -491,7 +595,7 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
 
             const id = url.hash.slice(1) as typeof activeSection;
             if (
-                !['home', 'tentang', 'proyek', 'keahlian', 'kontak'].includes(
+                !['home', 'tentang', 'proyek', 'perjalanan', 'kontak'].includes(
                     id,
                 )
             ) {
@@ -649,11 +753,13 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                     terminalRef.current?.querySelector<HTMLElement>(
                         '.about-terminal',
                     );
+                const terminalPosition = terminalRef.current;
                 const header =
                     document.querySelector<HTMLElement>('[data-site-header]');
                 if (
                     !photo ||
                     !terminalBody ||
+                    !terminalPosition ||
                     terminalContent.length === 0 ||
                     !roll ||
                     !aboutLayer
@@ -784,7 +890,9 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                             if (header.dataset.edge !== edge)
                                 header.dataset.edge = edge;
                         }
-                        if (
+                        if (time >= ABOUT_CONFIG.exitStart) {
+                            setTerminalInteractive(false);
+                        } else if (
                             !terminalInteractive &&
                             time >= ABOUT_CONFIG.terminalActiveAt
                         )
@@ -802,6 +910,7 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                                     photo,
                                     aboutLayer,
                                     terminalBody,
+                                    terminalPosition,
                                     ...terminalContent,
                                     roll,
                                 ],
@@ -959,6 +1068,16 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                         immediateRender: false,
                     },
                     ABOUT_CONFIG.contentStart,
+                );
+                timeline.to(
+                    terminalPosition,
+                    {
+                        x: () => window.innerWidth,
+                        opacity: 0,
+                        duration: ABOUT_CONFIG.exitDuration,
+                        ease: 'power2.in',
+                    },
+                    ABOUT_CONFIG.exitStart,
                 );
                 timeline.addLabel(
                     'aboutRest',
@@ -1403,6 +1522,8 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                     </section>
                 </div>
             </section>
+            <ProjectShowcase />
+            <JourneyShowcase />
         </div>
     );
 }

@@ -4,7 +4,7 @@ export type ActiveSection =
     | 'home'
     | 'tentang'
     | 'proyek'
-    | 'keahlian'
+    | 'perjalanan'
     | 'kontak';
 
 let scrollSection: ActiveSection = 'home';

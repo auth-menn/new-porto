@@ -1,15 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', fn (): InertiaResponse => Inertia::render('home'))->name('home');
 
-Route::get('login', [AuthenticatedSessionController::class, 'create'])
+Route::get('secret-cms-login', [AuthenticatedSessionController::class, 'create'])
     ->middleware('guest')
     ->name('login');
 
-Route::post('login', [AuthenticatedSessionController::class, 'store'])
+Route::post('secret-cms-login', [AuthenticatedSessionController::class, 'store'])
     ->middleware(['guest', 'throttle:login'])
     ->name('login.store');
 
