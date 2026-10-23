@@ -16,6 +16,7 @@ import { ArrowDown, Database } from 'lucide-react';
 import { ProjectSummary } from '@/components/project-summary';
 import { ProjectShowcase } from '@/components/project-showcase';
 import { JourneyShowcase } from '@/components/journey-showcase';
+import { ContactShowcase } from '@/components/contact-showcase';
 import { ABOUT_CONTENT } from '@/data/about';
 import { ABOUT_CONFIG } from '@/data/about-config';
 import { setScrollActiveSection } from '@/hooks/use-active-section';
@@ -280,6 +281,73 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
         let initialVisitPending = true;
         let userInteracted = false;
         let projectJumpFrame = 0;
+        let aboutJumpFrame = 0;
+
+        const jumpToAbout = () => {
+            window.cancelAnimationFrame(aboutJumpFrame);
+            let attempts = 0;
+            const placeAtAbout = () => {
+                let trigger = ScrollTrigger.getById('about-scene');
+                const scene = sceneRef.current;
+
+                if (!trigger && attempts < 120) {
+                    attempts += 1;
+                    aboutJumpFrame =
+                        window.requestAnimationFrame(placeAtAbout);
+                    return;
+                }
+
+                ScrollTrigger.refresh();
+                trigger = ScrollTrigger.getById('about-scene');
+
+                const top = trigger
+                    ? trigger.start +
+                      (trigger.end - trigger.start) * ABOUT_CONFIG.restAt
+                    : scene
+                      ? scene.offsetTop +
+                        Math.max(0, scene.scrollHeight - window.innerHeight) *
+                            ABOUT_CONFIG.restAt
+                      : 0;
+
+                window.scrollTo({ top, behavior: 'instant' });
+                ScrollTrigger.update(true);
+                trigger?.animation?.progress(ABOUT_CONFIG.restAt);
+
+                const aboutLayer = scene?.querySelector<HTMLElement>(
+                    '[data-about-layer]',
+                );
+                const terminalPosition = terminalRef.current;
+                const terminalBody = terminalPosition?.querySelector<HTMLElement>(
+                    '.terminal-window',
+                );
+                const terminalContent = terminalBody
+                    ? (Array.from(terminalBody.children) as HTMLElement[]).filter(
+                          (child) =>
+                              !child.matches('[data-terminal-arch-background]'),
+                      )
+                    : [];
+
+                if (aboutLayer) {
+                    gsap.set(aboutLayer, { autoAlpha: 1 });
+                    aboutLayer.style.pointerEvents = 'auto';
+                }
+                if (terminalPosition) {
+                    gsap.set(terminalPosition, { x: 0, opacity: 1 });
+                }
+                if (terminalBody) {
+                    gsap.set(terminalBody, { clipPath: 'none' });
+                    gsap.set(terminalContent, { opacity: 1 });
+                }
+                const terminalRoot = terminalPosition?.querySelector<HTMLElement>(
+                    '.about-terminal',
+                );
+                if (terminalRoot) terminalRoot.inert = false;
+                setTerminalActive(true);
+                setHeroEntered(true);
+            };
+
+            aboutJumpFrame = window.requestAnimationFrame(placeAtAbout);
+        };
 
         const jumpToProjects = () => {
             let attempts = 0;
@@ -329,10 +397,6 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
             }
 
             if (isAbout && scene) {
-                const scrollLength = Math.max(
-                    0,
-                    scene.scrollHeight - window.innerHeight,
-                );
                 if (window.location.hash !== '#tentang') {
                     window.history.replaceState(
                         window.history.state,
@@ -340,13 +404,30 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                         `${window.location.pathname}${window.location.search}#tentang`,
                     );
                 }
-                window.scrollTo({
-                    top: scene.offsetTop + scrollLength * ABOUT_CONFIG.restAt,
-                    behavior: 'instant',
-                });
-                setHeroEntered(true);
+                jumpToAbout();
             } else {
-                window.scrollTo({ top: 0, behavior: 'instant' });
+                const sectionId = window.location.hash.slice(1);
+                const section = ['perjalanan', 'kontak'].includes(sectionId)
+                    ? document.getElementById(sectionId)
+                    : null;
+
+                if (section) {
+                    const headerHeight =
+                        document
+                            .querySelector<HTMLElement>('[data-site-header]')
+                            ?.getBoundingClientRect().height ?? 0;
+
+                    window.scrollTo({
+                        top:
+                            section.getBoundingClientRect().top +
+                            window.scrollY -
+                            headerHeight,
+                        behavior: 'instant',
+                    });
+                    setHeroEntered(true);
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                }
             }
         };
 
@@ -365,11 +446,16 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                     ? projectSection.getBoundingClientRect().top +
                       window.scrollY
                     : 0);
-            const expectedAboutScroll = scene
-                ? scene.offsetTop +
-                  Math.max(0, scene.scrollHeight - window.innerHeight) *
+            const aboutTrigger = ScrollTrigger.getById('about-scene');
+            const expectedAboutScroll = aboutTrigger
+                ? aboutTrigger.start +
+                  (aboutTrigger.end - aboutTrigger.start) *
                       ABOUT_CONFIG.restAt
-                : 0;
+                : scene
+                  ? scene.offsetTop +
+                    Math.max(0, scene.scrollHeight - window.innerHeight) *
+                        ABOUT_CONFIG.restAt
+                  : 0;
 
             if (
                 initialVisitPending &&
@@ -415,6 +501,7 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
         return () => {
             window.clearTimeout(fallbackTimer);
             window.cancelAnimationFrame(projectJumpFrame);
+            window.cancelAnimationFrame(aboutJumpFrame);
             removeFinishListener();
             window.removeEventListener('wheel', markUserInteracted);
             window.removeEventListener('touchstart', markUserInteracted);
@@ -491,6 +578,15 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                 Boolean(journeyBounds) &&
                 journeyBounds!.top < window.innerHeight * 0.55 &&
                 journeyBounds!.bottom > window.innerHeight * 0.45;
+            const header =
+                document.querySelector<HTMLElement>('[data-site-header]');
+            if (header) {
+                const edge =
+                    progress * ABOUT_CONFIG.duration >= ABOUT_CONFIG.headerStart
+                        ? 'panel'
+                        : 'frame';
+                if (header.dataset.edge !== edge) header.dataset.edge = edge;
+            }
             const projectsProgress = projectsTrigger?.progress ?? 0;
             const projectThreshold = activeSection === 'proyek' ? 0.55 : 0.65;
 
@@ -814,6 +910,47 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                           (window.innerWidth /
                               window.innerHeight /
                               ABOUT_CONFIG.photoReferenceAspect);
+                const getPhotoX = (centerXPct: number) => {
+                    if (isMobile) return 0;
+
+                    const responsiveOffset = window.matchMedia(
+                        '(min-width: 768px) and (max-aspect-ratio: 4/5)',
+                    ).matches
+                        ? window.innerWidth * 0.02
+                        : 0;
+
+                    return (
+                        (window.innerWidth * centerXPct -
+                            frame.clientWidth * 0.5 -
+                            photoScale() * responsiveOffset) /
+                        measuredZoom()
+                    );
+                };
+                const getPhotoY = (headTopPct: number) => {
+                    const scale = photoScale();
+                    const imageHeight = isMobile
+                        ? 1.95
+                        : ABOUT_CONFIG.photoBaseHeight;
+                    const cssTop = isMobile ? 0.184 : 0.061;
+                    const visibleHeadStart =
+                        cssTop +
+                        ABOUT_CONFIG.photoTopPadding.light * imageHeight;
+
+                    return (
+                        (window.innerHeight *
+                            (headTopPct -
+                                0.5 -
+                                scale * (visibleHeadStart - 0.5))) /
+                        measuredZoom()
+                    );
+                };
+                const aboutPhotoHeadTop = isMobile
+                    ? Math.max(
+                          ABOUT_CONFIG.mobilePhotoEndY,
+                          (Math.max(56, window.innerHeight * 0.069) + 10) /
+                              window.innerHeight,
+                      )
+                    : ABOUT_CONFIG.photoEndY;
                 let terminalInteractive = false;
                 let previousContentInert: boolean | null = null;
                 let wasAtStart = false;
@@ -963,49 +1100,8 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                 timeline.to(
                     photo,
                     {
-                        x: () =>
-                            isMobile
-                                ? 0
-                                : (window.innerWidth *
-                                      ABOUT_CONFIG.photoCenterX -
-                                      frame.clientWidth * 0.5 -
-                                      photoScale() *
-                                          (window.matchMedia(
-                                              '(min-width: 768px) and (max-aspect-ratio: 4/5)',
-                                          ).matches
-                                              ? window.innerWidth * 0.02
-                                              : 0)) /
-                                  measuredZoom(),
-                        y: () => {
-                            const zoom = measuredZoom();
-                            const scale = photoScale();
-                            const imageHeight = isMobile
-                                ? 1.95
-                                : ABOUT_CONFIG.photoBaseHeight;
-                            const cssTop = isMobile ? 0.184 : 0.061;
-                            const visibleHeadStart =
-                                cssTop +
-                                ABOUT_CONFIG.photoTopPadding.light *
-                                    imageHeight;
-                            const target = isMobile
-                                ? Math.max(
-                                      ABOUT_CONFIG.mobilePhotoEndY,
-                                      (Math.max(
-                                          56,
-                                          window.innerHeight * 0.069,
-                                      ) +
-                                          10) /
-                                          window.innerHeight,
-                                  )
-                                : ABOUT_CONFIG.photoEndY;
-                            return (
-                                (window.innerHeight *
-                                    (target -
-                                        0.5 -
-                                        scale * (visibleHeadStart - 0.5))) /
-                                zoom
-                            );
-                        },
+                        x: () => getPhotoX(ABOUT_CONFIG.photoCenterX),
+                        y: () => getPhotoY(aboutPhotoHeadTop),
                         scale: () => photoScale() / measuredZoom(),
                         duration:
                             ABOUT_CONFIG.photoEnd - ABOUT_CONFIG.photoStart,
@@ -1098,6 +1194,15 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                 ) {
                     timeline.progress(ABOUT_CONFIG.restAt);
                 }
+                window.requestAnimationFrame(() => {
+                    const p = timeline.scrollTrigger?.progress ?? 0;
+                    if (header)
+                        header.dataset.edge =
+                            p * ABOUT_CONFIG.duration >=
+                            ABOUT_CONFIG.headerStart
+                                ? 'panel'
+                                : 'frame';
+                });
                 return () => {
                     contentElements.forEach((element) => {
                         element.inert = false;
@@ -1524,6 +1629,7 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
             </section>
             <ProjectShowcase />
             <JourneyShowcase />
+            <ContactShowcase />
         </div>
     );
 }
