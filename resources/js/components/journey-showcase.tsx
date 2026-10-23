@@ -3,6 +3,7 @@ import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLang } from '@/lib/i18n';
+import { JOURNEY_CONFIG } from '@/data/journey-config';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -11,22 +12,43 @@ const journeyItems = [
         number: '01',
         category: 'education',
         period: 'journeyPeriodPlaceholder',
-        title: 'educationTitlePlaceholder',
-        detail: 'educationDetailPlaceholder',
+        organization: 'educationTitlePlaceholder',
+        role: 'educationDetailPlaceholder',
+        activities: [
+            'journeyActivityOnePlaceholder',
+            'journeyActivityTwoPlaceholder',
+            'journeyActivityThreePlaceholder',
+        ],
+        logoSrc: null as string | null,
+        documentationSrc: null as string | null,
     },
     {
         number: '02',
         category: 'internship',
         period: 'journeyPeriodPlaceholder',
-        title: 'internshipTitlePlaceholder',
-        detail: 'companyPlaceholder',
+        organization: 'companyPlaceholder',
+        role: 'internshipTitlePlaceholder',
+        activities: [
+            'journeyActivityOnePlaceholder',
+            'journeyActivityTwoPlaceholder',
+            'journeyActivityThreePlaceholder',
+        ],
+        logoSrc: null as string | null,
+        documentationSrc: null as string | null,
     },
     {
         number: '03',
         category: 'workExperience',
         period: 'journeyPeriodPlaceholder',
-        title: 'workTitlePlaceholder',
-        detail: 'companyPlaceholder',
+        organization: 'companyPlaceholder',
+        role: 'workTitlePlaceholder',
+        activities: [
+            'journeyActivityOnePlaceholder',
+            'journeyActivityTwoPlaceholder',
+            'journeyActivityThreePlaceholder',
+        ],
+        logoSrc: null as string | null,
+        documentationSrc: null as string | null,
     },
 ] as const;
 
@@ -49,126 +71,294 @@ export function JourneyShowcase() {
         () => {
             const media = gsap.matchMedia();
 
-            media.add('(prefers-reduced-motion: no-preference)', () => {
-                const section = sectionRef.current;
-                if (!section) return;
+            media.add(
+                {
+                    motion: '(prefers-reduced-motion: no-preference)',
+                    desktop: '(min-width: 768px)',
+                    mobile: '(max-width: 767px)',
+                },
+                (context) => {
+                    const section = sectionRef.current;
+                    if (!section || !context.conditions?.motion) return;
 
-                const entries = gsap.utils.toArray<HTMLElement>(
-                    '[data-journey-entry]',
-                    section,
-                );
+                    const entries = gsap.utils.toArray<HTMLElement>(
+                        '[data-journey-entry]',
+                        section,
+                    );
+                    const viewport = section.querySelector<HTMLElement>(
+                        '[data-journey-viewport]',
+                    );
 
-                const viewport = section.querySelector<HTMLElement>(
-                    '[data-journey-viewport]',
-                );
-                const track = section.querySelector<HTMLElement>(
-                    '[data-journey-track]',
-                );
+                    if (!viewport || entries.length === 0) return;
 
-                if (!viewport || !track || entries.length === 0) return;
-
-                section.dataset.horizontal = 'true';
-                const travelSegments = entries.length + 1;
-                const timeline = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: section,
-                        start: 'top top',
-                        end: () =>
-                            `+=${track.scrollWidth - viewport.clientWidth}`,
-                        pin: true,
-                        scrub: 0.8,
-                        anticipatePin: 1,
-                        invalidateOnRefresh: true,
-                    },
-                });
-
-                timeline.to(
-                    track,
-                    {
-                        x: () => -(track.scrollWidth - viewport.clientWidth),
-                        duration: travelSegments,
-                        ease: 'none',
-                    },
-                    0,
-                );
-
-                entries.forEach((entry, index) => {
-                    const segmentDuration = travelSegments / entries.length;
-                    const segmentStart = index * segmentDuration;
-                    const content = entry.querySelector<HTMLElement>(
+                    section.dataset.horizontal = 'true';
+                    const config = context.conditions.mobile
+                        ? JOURNEY_CONFIG.mobile
+                        : JOURNEY_CONFIG.desktop;
+                    const firstContent = entries[0].querySelector<HTMLElement>(
                         '[data-journey-content]',
                     );
-                    const fragments = gsap.utils.toArray<HTMLElement>(
-                        '[data-journey-fragment]',
-                        entry,
-                    );
 
-                    if (!content || fragments.length === 0) return;
+                    if (!firstContent) return;
 
-                    gsap.set(content, { autoAlpha: 0, x: '14vw', y: '12vh' });
-                    gsap.set(fragments, { autoAlpha: 0 });
+                    const measure = () => {
+                        const viewportRect = viewport.getBoundingClientRect();
+                        const slotRect = firstContent.getBoundingClientRect();
+                        const firstX =
+                            Number(gsap.getProperty(entries[0], 'x')) || 0;
+                        const firstY =
+                            Number(gsap.getProperty(entries[0], 'y')) || 0;
+                        const width = viewport.clientWidth;
+                        const height = viewport.clientHeight;
+                        const left = slotRect.left - viewportRect.left - firstX;
+                        const top = slotRect.top - viewportRect.top - firstY;
+
+                        return {
+                            slot: { x: 0, y: 0 },
+                            peek: {
+                                x: width * (1 - config.peekVisibleWPct) - left,
+                                y: height * (1 - config.peekVisibleHPct) - top,
+                            },
+                            offscreen: {
+                                x: width - left + 48,
+                                y: height - top + 48,
+                            },
+                            exit: {
+                                x: -(left + slotRect.width + 48),
+                                y: -slotRect.height * config.exitUpPct,
+                            },
+                            width,
+                            height,
+                        };
+                    };
+
+                    let timeline: gsap.core.Timeline | null = null;
+                    const setInitialPositions = () => {
+                        entries.forEach((entry, index) => {
+                            const positions = measure();
+                            const start =
+                                index === 0
+                                    ? positions.slot
+                                    : index === 1
+                                      ? positions.peek
+                                      : positions.offscreen;
+
+                            gsap.set(entry, {
+                                x: () => start.x,
+                                y: () => start.y,
+                                autoAlpha: 1,
+                                zIndex: index + 1,
+                            });
+                            gsap.set(
+                                entry.querySelectorAll(
+                                    '[data-journey-content]',
+                                ),
+                                { autoAlpha: 1 },
+                            );
+                            gsap.set(
+                                entry.querySelectorAll(
+                                    '[data-journey-fragment]',
+                                ),
+                                { autoAlpha: 0, clearProps: 'x,y' },
+                            );
+                        });
+                    };
+
+                    setInitialPositions();
+
+                    section.dataset.journeyReady = 'true';
+
+                    timeline = gsap.timeline({
+                        scrollTrigger: {
+                            trigger: section,
+                            start: 'top top',
+                            end: () =>
+                                `+=${(entries.length - 1) * config.stepVh + JOURNEY_CONFIG.timing.holdEnd * config.stepVh}vh`,
+                            pin: true,
+                            scrub: JOURNEY_CONFIG.timing.scrub,
+                            anticipatePin: 1,
+                            invalidateOnRefresh: true,
+                            onRefresh: () => {
+                                if (timeline?.progress() === 0) {
+                                    setInitialPositions();
+                                }
+                            },
+                        },
+                    });
 
                     timeline.to(
-                        content,
-                        {
-                            autoAlpha: 1,
-                            x: 0,
-                            y: 0,
-                            duration: 0.2,
-                            ease: 'none',
-                        },
-                        segmentStart + segmentDuration * 0.05,
+                        {},
+                        { duration: JOURNEY_CONFIG.timing.holdStart },
                     );
-                    timeline.to(
-                        fragments,
-                        {
-                            autoAlpha: 1,
-                            duration: 0.04,
-                            ease: 'none',
-                        },
-                        segmentStart + segmentDuration * 0.65,
-                    );
-                    timeline.to(
-                        content,
-                        {
-                            autoAlpha: 0,
-                            x: '-12vw',
-                            y: '-8vh',
-                            duration: 0.13,
-                            ease: 'none',
-                        },
-                        segmentStart + segmentDuration * 0.7,
-                    );
-                    timeline.to(
-                        fragments,
-                        {
-                            x: () => gsap.utils.random(-180, -40),
-                            y: () => gsap.utils.random(-80, 100),
-                            rotation: () => gsap.utils.random(-18, 18),
-                            autoAlpha: 0,
-                            stagger: { each: 0.003, from: 'random' },
-                            duration: 0.32,
-                            ease: 'none',
-                        },
-                        segmentStart + segmentDuration * 0.7,
-                    );
-                });
 
-                return () => {
-                    delete section.dataset.horizontal;
-                };
-            });
+                    for (
+                        let index = 0;
+                        index < entries.length - 1;
+                        index += 1
+                    ) {
+                        const transitionStart =
+                            JOURNEY_CONFIG.timing.holdStart +
+                            index *
+                                (JOURNEY_CONFIG.timing.transition +
+                                    JOURNEY_CONFIG.timing.holdBetween);
+                        const outgoing = entries[index];
+                        const incoming = entries[index + 1];
+                        const outgoingContent =
+                            outgoing.querySelector<HTMLElement>(
+                                '[data-journey-content]',
+                            );
+                        const outgoingFragments =
+                            gsap.utils.toArray<HTMLElement>(
+                                '[data-journey-fragment]',
+                                outgoing,
+                            );
+
+                        if (
+                            !outgoingContent ||
+                            outgoingFragments.length === 0
+                        ) {
+                            continue;
+                        }
+
+                        timeline.fromTo(
+                            outgoing,
+                            {
+                                x: () => measure().slot.x,
+                                y: () => measure().slot.y,
+                                immediateRender: false,
+                            },
+                            {
+                                x: () => measure().exit.x,
+                                y: () => measure().exit.y,
+                                duration: JOURNEY_CONFIG.timing.transition,
+                                ease: JOURNEY_CONFIG.ease,
+                                immediateRender: false,
+                            },
+                            transitionStart,
+                        );
+
+                        timeline.fromTo(
+                            incoming,
+                            {
+                                x: () => measure().peek.x,
+                                y: () => measure().peek.y,
+                                immediateRender: false,
+                            },
+                            {
+                                x: () => measure().slot.x,
+                                y: () => measure().slot.y,
+                                duration: JOURNEY_CONFIG.timing.transition,
+                                ease: JOURNEY_CONFIG.ease,
+                                immediateRender: false,
+                            },
+                            transitionStart,
+                        );
+
+                        const preloaded = entries[index + 2];
+
+                        if (preloaded) {
+                            timeline.fromTo(
+                                preloaded,
+                                {
+                                    x: () => measure().offscreen.x,
+                                    y: () => measure().offscreen.y,
+                                    immediateRender: false,
+                                },
+                                {
+                                    x: () => measure().peek.x,
+                                    y: () => measure().peek.y,
+                                    duration: JOURNEY_CONFIG.timing.transition,
+                                    ease: JOURNEY_CONFIG.ease,
+                                    immediateRender: false,
+                                },
+                                transitionStart +
+                                    JOURNEY_CONFIG.timing.peekStagger,
+                            );
+                        }
+
+                        timeline.fromTo(
+                            outgoingContent,
+                            { autoAlpha: 1, immediateRender: false },
+                            {
+                                autoAlpha: 0,
+                                duration:
+                                    JOURNEY_CONFIG.timing.transition * 0.3,
+                                ease: 'none',
+                                immediateRender: false,
+                            },
+                            transitionStart +
+                                JOURNEY_CONFIG.timing.transition * 0.65,
+                        );
+                        timeline.fromTo(
+                            outgoingFragments,
+                            { autoAlpha: 0, immediateRender: false },
+                            {
+                                autoAlpha: 1,
+                                duration:
+                                    JOURNEY_CONFIG.timing.transition * 0.04,
+                                ease: 'none',
+                                immediateRender: false,
+                            },
+                            transitionStart +
+                                JOURNEY_CONFIG.timing.transition * 0.65,
+                        );
+                        timeline.fromTo(
+                            outgoingFragments,
+                            {
+                                x: 0,
+                                y: 0,
+                                autoAlpha: 1,
+                                immediateRender: false,
+                            },
+                            {
+                                x: () =>
+                                    gsap.utils.random(
+                                        -measure().width * 0.14,
+                                        -measure().width * 0.04,
+                                    ),
+                                y: () =>
+                                    gsap.utils.random(
+                                        -measure().height * 0.18,
+                                        -measure().height * 0.05,
+                                    ),
+                                autoAlpha: 0,
+                                stagger: { each: 0.003, from: 'random' },
+                                duration:
+                                    JOURNEY_CONFIG.timing.transition * 0.32,
+                                ease: 'none',
+                                immediateRender: false,
+                            },
+                            transitionStart +
+                                JOURNEY_CONFIG.timing.transition * 0.68,
+                        );
+                    }
+
+                    const lastTransitionStart =
+                        JOURNEY_CONFIG.timing.holdStart +
+                        (entries.length - 2) *
+                            (JOURNEY_CONFIG.timing.transition +
+                                JOURNEY_CONFIG.timing.holdBetween);
+                    timeline.to(
+                        {},
+                        { duration: JOURNEY_CONFIG.timing.holdEnd },
+                        lastTransitionStart + JOURNEY_CONFIG.timing.transition,
+                    );
+
+                    return () => {
+                        delete section.dataset.horizontal;
+                        section.dataset.journeyReady = 'false';
+                    };
+                },
+            );
 
             media.add('(prefers-reduced-motion: reduce)', () => {
                 const section = sectionRef.current;
                 if (!section) return;
 
-                gsap.set(section.querySelectorAll('[data-journey-content]'), {
-                    autoAlpha: 1,
-                    clearProps: 'transform',
-                });
+                section.dataset.journeyReady = 'true';
                 gsap.set(section.querySelectorAll('[data-journey-fragment]'), {
                     autoAlpha: 0,
+                    clearProps: 'x,y',
                 });
             });
 
@@ -179,13 +369,61 @@ export function JourneyShowcase() {
 
     const renderEntryContent = (item: (typeof journeyItems)[number]) => (
         <div className="journey-entry-face">
-            <div className="journey-entry-meta">
-                <span>{item.number}</span>
-                <span>{t(item.category)}</span>
+            <div className="journey-entry-header">
+                <div className="journey-entry-identity">
+                    {item.logoSrc ? (
+                        <img
+                            className="journey-entry-logo"
+                            src={item.logoSrc}
+                            alt={`${t(item.organization)} — ${t('journeyOrganizationLogo')}`}
+                            loading="lazy"
+                            decoding="async"
+                        />
+                    ) : (
+                        <div
+                            className="journey-entry-logo-placeholder"
+                            aria-hidden="true"
+                        >
+                            {item.number}
+                        </div>
+                    )}
+                    <div className="journey-entry-heading">
+                        <span className="journey-entry-category">
+                            {t(item.category)}
+                        </span>
+                        <p className="journey-entry-organization">
+                            {t(item.organization)}
+                        </p>
+                        <h3>{t(item.role)}</h3>
+                    </div>
+                </div>
+                <p className="journey-entry-period">{t(item.period)}</p>
             </div>
-            <p className="journey-entry-period">{t(item.period)}</p>
-            <h3>{t(item.title)}</h3>
-            <p className="journey-entry-detail">{t(item.detail)}</p>
+            <div className="journey-entry-body">
+                <ul className="journey-entry-activities">
+                    {item.activities.map((activity) => (
+                        <li key={activity}>{t(activity)}</li>
+                    ))}
+                </ul>
+                <div className="journey-entry-documentation">
+                    {item.documentationSrc ? (
+                        <img
+                            src={item.documentationSrc}
+                            alt={`${t('journeyDocumentation')} — ${t(item.role)}`}
+                            loading="lazy"
+                            decoding="async"
+                        />
+                    ) : (
+                        <div
+                            className="journey-entry-documentation-placeholder"
+                            aria-hidden="true"
+                        >
+                            <span>{t('journeyDocumentation')}</span>
+                            <span>{item.number}</span>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 
@@ -194,16 +432,16 @@ export function JourneyShowcase() {
             ref={sectionRef}
             id="perjalanan"
             className="journey-section"
+            data-journey-ready="false"
             aria-labelledby="journey-title"
         >
             <div className="journey-section-heading">
-                <p className="journey-section-kicker">03 / {t('journey')}</p>
                 <h2 id="journey-title">{t('journey')}</h2>
                 <p>{t('journeyDescription')}</p>
             </div>
 
             <div className="journey-horizontal-viewport" data-journey-viewport>
-                <div className="journey-list" data-journey-track>
+                <div className="journey-list">
                     {journeyItems.map((item) => (
                         <article
                             key={item.number}
@@ -236,7 +474,6 @@ export function JourneyShowcase() {
                             </div>
                         </article>
                     ))}
-                    <div className="journey-track-tail" aria-hidden="true" />
                 </div>
             </div>
         </section>
