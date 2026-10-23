@@ -14,11 +14,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_CONFIG } from '@/data/about-config';
 import { projects } from '@/data/projects';
 import { PROJECT_CONFIG } from '@/data/project-config';
-import {
-    scheduleInitialScrollRefresh,
-    setPhotoScrollRange,
-    syncPhotoOwner,
-} from '@/lib/photo-controller';
 import { useLang } from '@/lib/i18n';
 
 gsap.registerPlugin(useGSAP, ScrollToPlugin, ScrollTrigger);
@@ -71,7 +66,6 @@ export function ProjectShowcase() {
     const sectionRef = useRef<HTMLElement>(null);
     const photoRef = useRef<HTMLDivElement>(null);
     const photoFlyRef = useRef<HTMLDivElement>(null);
-    const photoExitRef = useRef<HTMLDivElement>(null);
     const laptopRef = useRef<HTMLDivElement>(null);
     const phoneRef = useRef<HTMLDivElement>(null);
     const titleRef = useRef<HTMLHeadingElement>(null);
@@ -92,40 +86,43 @@ export function ProjectShowcase() {
     useLayoutEffect(() => {
         setPortalTarget(document.body);
         const section = sectionRef.current;
-        const journey = document.getElementById('perjalanan');
-        if (!section || !journey) return;
+        if (!section) return;
 
-        const getDocumentTop = (element: HTMLElement) =>
-            element.getBoundingClientRect().top + window.scrollY;
-        const exitViewportRatio =
-            Number.parseFloat(PROJECT_CONFIG.flight.exitEndAt) / 100;
-        const start = getDocumentTop(section) - window.innerHeight;
-        const end =
-            getDocumentTop(journey) - window.innerHeight * exitViewportRatio;
+        const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+        const start = sectionTop - window.innerHeight;
+        const progress = Math.max(
+            0,
+            Math.min(1, (window.scrollY - start) / window.innerHeight),
+        );
         const isReducedMotion = window.matchMedia(
             PROJECT_CONFIG.animation.reducedMotionQuery,
         ).matches;
-        const root = document.documentElement;
+        const initialOwner =
+            window.location.hash === '#proyek'
+                ? 'projects'
+                : progress <= PROJECT_CONFIG.animation.ownerAboutAt
+                  ? 'about'
+                  : progress >= PROJECT_CONFIG.animation.ownerProjectsAt
+                    ? 'projects'
+                    : isReducedMotion
+                      ? progress < 0.5
+                          ? 'about'
+                          : 'projects'
+                      : 'fly';
 
-        root.dataset.photoMode = isReducedMotion ? 'static' : 'fly';
-        root.style.setProperty(
-            '--project-fly-z-index',
-            String(PROJECT_CONFIG.flight.zIndex),
-        );
-        setPhotoScrollRange(start, end);
-        syncPhotoOwner(window.scrollY);
-
-        return () => {
-            delete root.dataset.photoMode;
-            root.style.removeProperty('--project-fly-z-index');
-        };
+        document.documentElement.dataset.photoOwner = initialOwner;
     }, []);
     const desktopStyle = {
         '--project-section-height': PROJECT_CONFIG.desktop.sectionHeight,
         '--project-laptop-height': PROJECT_CONFIG.desktop.laptopHeight,
+        '--project-laptop-width': PROJECT_CONFIG.desktop.laptopWidth,
         '--project-tablet-laptop-height':
             PROJECT_CONFIG.desktop.tabletLaptopHeight,
+        '--project-tablet-laptop-width':
+            PROJECT_CONFIG.desktop.tabletLaptopWidth,
         '--project-phone-height': `calc(var(--project-laptop-height) * ${PROJECT_CONFIG.desktop.phoneScale})`,
+        '--project-phone-width': PROJECT_CONFIG.desktop.phoneWidth,
+        '--project-tablet-phone-width': PROJECT_CONFIG.desktop.tabletPhoneWidth,
         '--project-laptop-right': PROJECT_CONFIG.desktop.laptopRight,
         '--project-phone-right': PROJECT_CONFIG.desktop.phoneRight,
         '--project-laptop-bottom': PROJECT_CONFIG.desktop.laptopBottom,
@@ -141,8 +138,6 @@ export function ProjectShowcase() {
             PROJECT_CONFIG.frameMetrics.laptop.screen.bottom,
         '--project-laptop-screen-left':
             PROJECT_CONFIG.frameMetrics.laptop.screen.left,
-        '--project-laptop-screen-bleed-y': `${PROJECT_CONFIG.screenBleedPct * PROJECT_CONFIG.desktopDeviceAspect.laptop * 100}%`,
-        '--project-screen-bleed': `${PROJECT_CONFIG.screenBleedPct * 100}%`,
         '--project-phone-screen-top':
             PROJECT_CONFIG.frameMetrics.phone.screen.top,
         '--project-phone-screen-right':
@@ -151,7 +146,7 @@ export function ProjectShowcase() {
             PROJECT_CONFIG.frameMetrics.phone.screen.bottom,
         '--project-phone-screen-left':
             PROJECT_CONFIG.frameMetrics.phone.screen.left,
-        '--project-phone-screen-bleed-y': `${PROJECT_CONFIG.screenBleedPct * PROJECT_CONFIG.desktopDeviceAspect.phone * 100}%`,
+        '--project-screen-bleed': `${PROJECT_CONFIG.screenBleedPct * 100}cqw`,
         '--project-arrow-size': `${PROJECT_CONFIG.desktop.arrowSize}px`,
         '--project-arrow-gap': PROJECT_CONFIG.desktop.arrowGap,
         '--project-counter-right': PROJECT_CONFIG.desktop.counterRight,
@@ -159,6 +154,8 @@ export function ProjectShowcase() {
         '--project-previous-arrow-left':
             PROJECT_CONFIG.desktop.previousArrowLeft,
         '--project-mobile-laptop-height': PROJECT_CONFIG.mobile.laptopHeight,
+        '--project-mobile-laptop-width': PROJECT_CONFIG.mobile.laptopWidth,
+        '--project-mobile-phone-width': PROJECT_CONFIG.mobile.phoneWidth,
         '--project-mobile-laptop-aspect':
             PROJECT_CONFIG.mobileDeviceAspect.laptop,
         '--project-mobile-phone-aspect':
@@ -176,6 +173,7 @@ export function ProjectShowcase() {
         '--project-mobile-control-bottom': PROJECT_CONFIG.mobile.controlBottom,
         '--project-mobile-counter-offset': PROJECT_CONFIG.mobile.counterOffset,
         '--project-z-index': PROJECT_CONFIG.zIndex,
+        '--project-fly-z-index': PROJECT_CONFIG.flight.zIndex,
         '--project-count': projects.length,
         '--project-photo-clip-overhang': `-${PROJECT_CONFIG.photoClipOverhangVh * 100}dvh`,
     } as CSSProperties;
@@ -193,7 +191,6 @@ export function ProjectShowcase() {
             const section = sectionRef.current;
             const projectPhoto = photoRef.current;
             const photoFly = photoFlyRef.current;
-            const photoExit = photoExitRef.current;
             const laptop = laptopRef.current;
             const phone = phoneRef.current;
             const title = titleRef.current;
@@ -203,7 +200,6 @@ export function ProjectShowcase() {
                 !section ||
                 !projectPhoto ||
                 !photoFly ||
-                !photoExit ||
                 !laptop ||
                 !phone ||
                 !title ||
@@ -240,6 +236,9 @@ export function ProjectShowcase() {
                     const reducedMotion = window.matchMedia(
                         PROJECT_CONFIG.animation.reducedMotionQuery,
                     ).matches;
+                    const isMobile = window.matchMedia(
+                        `(max-width: ${PROJECT_CONFIG.mobile.breakpoint - 1}px)`,
+                    ).matches;
                     let terminalInteractivity = false;
                     let photoPositions: ReturnType<typeof applyPhotoGeometry>;
 
@@ -255,19 +254,21 @@ export function ProjectShowcase() {
                         const oldTime = aboutTimeline?.time();
                         if (aboutTimeline) {
                             aboutTimeline.time(
-                                ABOUT_CONFIG.duration * ABOUT_CONFIG.restAt,
+                                ABOUT_CONFIG.restAt * ABOUT_CONFIG.duration,
                                 true,
                             );
                         }
                         const photoBounds = aboutPhoto.getBoundingClientRect();
-                        const stageBounds = stickyStage.getBoundingClientRect();
+                        const stickyStageTop =
+                            stickyStage.getBoundingClientRect().top;
                         if (aboutTimeline && oldTime !== undefined) {
                             aboutTimeline.time(oldTime, true);
                         }
+                        const stageOffset = Math.max(0, -stickyStageTop);
                         return photoBounds.width > 0 && photoBounds.height > 0
                             ? new DOMRect(
-                                  photoBounds.left - stageBounds.left,
-                                  photoBounds.top - stageBounds.top,
+                                  photoBounds.left,
+                                  photoBounds.top + stageOffset,
                                   photoBounds.width,
                                   photoBounds.height,
                               )
@@ -334,13 +335,6 @@ export function ProjectShowcase() {
                                 offsetElement.offsetParent as HTMLElement | null;
                         }
 
-                        const width = projectPhoto.offsetWidth;
-                        const height = projectPhoto.offsetHeight;
-                        const rightInset = Math.min(
-                            PROJECT_CONFIG.photoRightPadding.light,
-                            PROJECT_CONFIG.photoRightPadding.dark,
-                        );
-
                         return {
                             about: {
                                 x: measured.x,
@@ -348,18 +342,12 @@ export function ProjectShowcase() {
                                 width: measured.width,
                                 height: measured.height,
                             },
-                            rest: {
+                            projects: {
                                 x,
                                 y,
-                                width,
-                                height,
+                                width: projectPhoto.offsetWidth,
+                                height: projectPhoto.offsetHeight,
                             },
-                            exitDistance: Math.max(
-                                0,
-                                x +
-                                    width * (1 - rightInset) +
-                                    PROJECT_CONFIG.flight.exitClearancePx,
-                            ),
                         };
                     };
 
@@ -373,7 +361,18 @@ export function ProjectShowcase() {
                         phone.inert = false;
                         controls.inert = false;
                         section.dataset.motion = 'reduced';
-                        document.documentElement.dataset.photoMode = 'static';
+                        ScrollTrigger.create({
+                            trigger: section,
+                            start: 'top top',
+                            onEnter: () => {
+                                document.documentElement.dataset.photoOwner =
+                                    'projects';
+                            },
+                            onLeaveBack: () => {
+                                document.documentElement.dataset.photoOwner =
+                                    'about';
+                            },
+                        });
                         return;
                     }
 
@@ -381,7 +380,16 @@ export function ProjectShowcase() {
                     phone.inert = true;
                     controls.inert = true;
 
-                    const updateTerminalInteractivity = (progress: number) => {
+                    const updatePhotoOwner = (progress: number) => {
+                        const owner =
+                            progress <= PROJECT_CONFIG.animation.ownerAboutAt
+                                ? 'about'
+                                : progress >=
+                                    PROJECT_CONFIG.animation.ownerProjectsAt
+                                  ? 'projects'
+                                  : 'fly';
+                        document.documentElement.dataset.photoOwner = owner;
+
                         if (
                             !terminalInteractivity &&
                             progress >=
@@ -418,127 +426,123 @@ export function ProjectShowcase() {
                         );
                     };
 
-                    const journey = document.getElementById('perjalanan');
-                    const getProgressAt = (
-                        trigger: ScrollTrigger | undefined,
-                        scrollY: number,
-                    ) => {
-                        if (!trigger || trigger.end <= trigger.start) return 0;
-                        return gsap.utils.clamp(
-                            0,
-                            1,
-                            (scrollY - trigger.start) /
-                                (trigger.end - trigger.start),
-                        );
-                    };
-
-                    if (photoPositions && journey) {
-                        document.documentElement.dataset.photoMode = 'fly';
-                        const applyPhotoSizes = () => {
-                            if (!photoPositions) return;
-                            gsap.set(photoFly, {
-                                width: photoPositions.about.width,
-                                height: photoPositions.about.height,
-                            });
+                    let flightTween: gsap.core.Tween | null = null;
+                    if (photoPositions) {
+                        const handoffStart = {
+                            x: photoPositions.about.x,
+                            y: photoPositions.about.y,
                         };
-                        applyPhotoSizes();
-
-                        const flightTween = gsap.fromTo(
+                        const flightProgress = { value: 0 };
+                        const setFlightX = gsap.quickSetter(
                             photoFly,
-                            {
-                                x: () => photoPositions?.about.x ?? 0,
-                                y: () => photoPositions?.about.y ?? 0,
+                            'x',
+                            'px',
+                        );
+                        const setFlightY = gsap.quickSetter(
+                            photoFly,
+                            'y',
+                            'px',
+                        );
+                        const applyFlightPosition = (progress: number) => {
+                            if (!photoPositions) return;
+                            setFlightX(
+                                handoffStart.x +
+                                    (photoPositions.projects.x -
+                                        handoffStart.x) *
+                                        progress,
+                            );
+                            setFlightY(
+                                handoffStart.y +
+                                    (photoPositions.projects.y -
+                                        handoffStart.y) *
+                                        progress,
+                            );
+                        };
+                        let capturedLiveStart = false;
+                        const canCaptureLiveStart =
+                            !window.location.hash.startsWith('#proyek') &&
+                            window.scrollY <
+                                section.getBoundingClientRect().top +
+                                    window.scrollY -
+                                    window.innerHeight;
+                        gsap.set(photoFly, {
+                            width: photoPositions.about.width,
+                            height: photoPositions.about.height,
+                            x: handoffStart.x,
+                            y: handoffStart.y,
+                            force3D: true,
+                        });
+                        flightTween = gsap.to(flightProgress, {
+                            value: 1,
+                            // This tween is scrubbed by scroll, so keep the path
+                            // linear to avoid a visible pause at the handoff.
+                            ease: 'none',
+                            immediateRender: false,
+                            onUpdate: () => {
+                                applyFlightPosition(flightProgress.value);
+                                updatePhotoOwner(flightTween?.progress() ?? 0);
                             },
-                            {
-                                x: () => photoPositions?.rest.x ?? 0,
-                                y: () => photoPositions?.rest.y ?? 0,
-                                ease: 'power2.inOut',
-                                force3D: true,
-                                immediateRender: false,
-                                onUpdate: () =>
-                                    updateTerminalInteractivity(
-                                        flightTween.progress(),
+                            scrollTrigger: {
+                                id: 'projects-handoff',
+                                trigger: section,
+                                start: 'top bottom',
+                                end: 'top top',
+                                scrub: true,
+                                invalidateOnRefresh: true,
+                                refreshPriority: 1,
+                                onEnter: (self) => {
+                                    if (
+                                        !canCaptureLiveStart ||
+                                        capturedLiveStart ||
+                                        !aboutPhoto
+                                    ) {
+                                        return;
+                                    }
+                                    const bounds =
+                                        aboutPhoto.getBoundingClientRect();
+                                    if (
+                                        bounds.width <= 0 ||
+                                        bounds.height <= 0
+                                    ) {
+                                        return;
+                                    }
+                                    handoffStart.x = bounds.left;
+                                    handoffStart.y = bounds.top;
+                                    gsap.set(photoFly, {
+                                        width: bounds.width,
+                                        height: bounds.height,
+                                        x: bounds.left,
+                                        y: bounds.top,
+                                        force3D: true,
+                                    });
+                                    capturedLiveStart = true;
+                                    flightTween?.progress(self.progress, true);
+                                    applyFlightPosition(self.progress);
+                                },
+                                onRefresh: (self) => {
+                                    photoPositions = applyPhotoGeometry();
+                                    if (!photoPositions || !flightTween) {
+                                        return;
+                                    }
+                                    gsap.set(photoFly, {
+                                        width: photoPositions.about.width,
+                                        height: photoPositions.about.height,
+                                    });
+                                    if (!capturedLiveStart) {
+                                        handoffStart.x = photoPositions.about.x;
+                                        handoffStart.y = photoPositions.about.y;
+                                    }
+                                    flightTween.invalidate();
+                                    flightTween.progress(self.progress, true);
+                                    applyFlightPosition(self.progress);
+                                    updatePhotoOwner(flightTween.progress());
+                                },
+                                onToggle: () =>
+                                    updatePhotoOwner(
+                                        flightTween?.progress() ?? 0,
                                     ),
-                                scrollTrigger: {
-                                    id: 'projects-handoff',
-                                    trigger: section,
-                                    start: 'top bottom',
-                                    end: 'top top',
-                                    scrub: true,
-                                    invalidateOnRefresh: true,
-                                },
-                            },
-                        );
-
-                        const exitTween = gsap.fromTo(
-                            photoExit,
-                            { x: 0 },
-                            {
-                                x: () =>
-                                    photoPositions?.exitDistance ??
-                                    window.innerWidth,
-                                ease: 'none',
-                                immediateRender: false,
-                                scrollTrigger: {
-                                    id: 'projects-photo-exit',
-                                    trigger: journey,
-                                    start: 'top bottom',
-                                    end: () =>
-                                        `top ${PROJECT_CONFIG.flight.exitEndAt}`,
-                                    scrub: true,
-                                    invalidateOnRefresh: true,
-                                    toggleClass: {
-                                        targets: photoExit,
-                                        className: 'is-exiting',
-                                    },
-                                },
-                            },
-                        );
-
-                        const photoOwnerTrigger = ScrollTrigger.create({
-                            id: 'photo-owner',
-                            trigger: section,
-                            start: 'top bottom',
-                            endTrigger: journey,
-                            end: `top ${PROJECT_CONFIG.flight.exitEndAt}`,
-                            refreshPriority: -1,
-                            invalidateOnRefresh: true,
-                            onUpdate: (self) => syncPhotoOwner(self.scroll()),
-                            onRefresh: (self) => {
-                                photoPositions = applyPhotoGeometry();
-                                if (!photoPositions) return;
-
-                                applyPhotoSizes();
-                                flightTween.invalidate();
-                                exitTween.invalidate();
-
-                                const flightTrigger =
-                                    ScrollTrigger.getById('projects-handoff');
-                                const exitTrigger = ScrollTrigger.getById(
-                                    'projects-photo-exit',
-                                );
-                                const scrollY = self.scroll();
-
-                                setPhotoScrollRange(
-                                    flightTrigger?.start ?? self.start,
-                                    self.end,
-                                );
-                                flightTween.progress(
-                                    getProgressAt(flightTrigger, scrollY),
-                                    true,
-                                );
-                                exitTween.progress(
-                                    getProgressAt(exitTrigger, scrollY),
-                                    true,
-                                );
-                                syncPhotoOwner(scrollY);
-                                applyKeyboardAlignment();
                             },
                         });
-
-                        void photoOwnerTrigger;
-                    } else {
-                        document.documentElement.dataset.photoMode = 'static';
                     }
 
                     const projectsTl = gsap.timeline({
@@ -552,8 +556,7 @@ export function ProjectShowcase() {
                                 : PROJECT_CONFIG.animation.desktopScrub,
                             invalidateOnRefresh: true,
                             refreshPriority: -1,
-                            onUpdate: (self) =>
-                                updateTerminalInteractivity(self.progress),
+                            onRefresh: applyKeyboardAlignment,
                         },
                     });
                     projectsTl.fromTo(
@@ -642,7 +645,6 @@ export function ProjectShowcase() {
 
                     ScrollTrigger.sort();
                     applyKeyboardAlignment();
-                    void scheduleInitialScrollRefresh();
                 };
 
                 media.add(
@@ -653,14 +655,7 @@ export function ProjectShowcase() {
                             PROJECT_CONFIG.animation.reducedMotionQuery,
                     },
                     () => {
-                        try {
-                            create();
-                            delete section.dataset.gsapFailed;
-                        } catch (error) {
-                            console.error('Projects GSAP setup failed:', error);
-                            section.dataset.gsapFailed = 'true';
-                        }
-                        void scheduleInitialScrollRefresh();
+                        create();
 
                         return () => {
                             laptop.inert = true;
@@ -691,7 +686,7 @@ export function ProjectShowcase() {
                 section.removeAttribute('data-motion');
             };
         },
-        { scope: sectionRef, dependencies: [] },
+        { scope: sectionRef, dependencies: [portalTarget] },
     );
 
     useEffect(() => {
@@ -1064,29 +1059,27 @@ export function ProjectShowcase() {
                         className="project-photo-fly"
                         aria-hidden="true"
                     >
-                        <div ref={photoExitRef} className="project-photo-exit">
-                            <img
-                                src={PROJECT_CONFIG.photoFiles.light}
-                                alt=""
-                                width={853}
-                                height={1844}
-                                loading="eager"
-                                decoding="async"
-                                draggable={false}
-                                className="project-photo-image project-photo-light"
-                            />
-                            <img
-                                src={PROJECT_CONFIG.photoFiles.dark}
-                                alt=""
-                                aria-hidden="true"
-                                width={853}
-                                height={1844}
-                                loading="eager"
-                                decoding="async"
-                                draggable={false}
-                                className="project-photo-image project-photo-dark"
-                            />
-                        </div>
+                        <img
+                            src={PROJECT_CONFIG.photoFiles.light}
+                            alt=""
+                            width={853}
+                            height={1844}
+                            loading="eager"
+                            decoding="async"
+                            draggable={false}
+                            className="project-photo-image project-photo-light"
+                        />
+                        <img
+                            src={PROJECT_CONFIG.photoFiles.dark}
+                            alt=""
+                            aria-hidden="true"
+                            width={853}
+                            height={1844}
+                            loading="eager"
+                            decoding="async"
+                            draggable={false}
+                            className="project-photo-image project-photo-dark"
+                        />
                     </div>,
                     portalTarget,
                 )}
