@@ -8,7 +8,7 @@ import {
     useState,
 } from 'react';
 import { ArchLogo } from '@/components/arch-logo';
-import { projects } from '@/data/projects';
+import { TECH_STACK } from '@/data/tech-stack';
 import {
     ABOUT_CONTENT,
     tokenizeTerminalLine,
@@ -17,6 +17,7 @@ import {
 } from '@/data/about';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useLang } from '@/lib/i18n';
+import type { Journey, Project } from '@/types';
 
 type OutputKey =
     | keyof typeof ABOUT_CONTENT
@@ -38,6 +39,8 @@ type TerminalProps = {
     themeTransitionsReady: boolean;
     onReady: () => void;
     onExit: () => void;
+    projects: Project[];
+    journeys: Journey[];
 };
 
 const commandLabels = [
@@ -166,21 +169,55 @@ function resolveCommand(rawCommand: string): {
     return { key: 'unknown', argument: rawCommand.trim() };
 }
 
-function getOutput(entry: TerminalEntry, language: 'id' | 'en'): string {
+function getOutput(
+    entry: TerminalEntry,
+    language: 'id' | 'en',
+    projects: Project[],
+    journeys: Journey[],
+): string {
     const { outputKey, command } = entry;
     if (outputKey === 'unknown') return `bash: ${command}: command not found`;
     if (outputKey === 'fastfetch') {
-        return 'visitor@archlinux\n----------------\nName:     Firman Maulana Syabani\nRole:     IT Developer\nStack:    Laravel, React, TypeScript, Inertia, Tailwind CSS, MySQL\nLocation: [Kota], Indonesia\nContact:  hello@example.com';
+        return `visitor@archlinux\n----------------\nName:     Firman Maulana Syabani\nRole:     IT Developer\nStack:    ${TECH_STACK.map((item) => item.name).join(', ')}\nLocation: [Kota], Indonesia\nContact:  hello@example.com`;
     }
     if (outputKey === 'ls')
         return 'about.md  skills.txt  experience.log  education.log  contact.txt  projects/';
     if (outputKey === 'projects')
-        return projects
-            .map(
-                (project) =>
-                    `${(language === 'id' ? project.titleId : project.titleEn).replace(/\s+/g, '-')}/`,
-            )
-            .join('\n');
+        return projects.length
+            ? projects
+                  .map((project, index) => {
+                      const link = project.link ? `\n   ${project.link}` : '';
+                      return `${String(index + 1).padStart(2, '0')}  ${project.title}${link}`;
+                  })
+                  .join('\n')
+            : language === 'id'
+              ? 'Belum ada proyek di CMS.'
+              : 'No projects have been added in the CMS.';
+    if (outputKey === 'skills')
+        return TECH_STACK.map((item, index) => `${String(index + 1).padStart(2, '0')}  ${item.name}`).join('\n');
+    if (outputKey === 'education' || outputKey === 'experience') {
+        const matchingJourneys = journeys.filter((journey) =>
+            outputKey === 'education'
+                ? journey.category === 'education'
+                : journey.category !== 'education',
+        );
+
+        return matchingJourneys.length
+            ? matchingJourneys
+                  .map((journey) => {
+                      const period = `${journey.startYear}–${journey.endYear ?? (language === 'id' ? 'sekarang' : 'present')}`;
+                      const activities = journey.activities.map((activity) => `   - ${activity}`).join('\n');
+                      return `${period}  ${journey.organization}\n   ${journey.title}${activities ? `\n${activities}` : ''}`;
+                  })
+                  .join('\n\n')
+            : language === 'id'
+              ? outputKey === 'education'
+                  ? 'Belum ada data pendidikan di CMS.'
+                  : 'Belum ada data pengalaman di CMS.'
+              : outputKey === 'education'
+                ? 'No education has been added in the CMS.'
+                : 'No experience has been added in the CMS.';
+    }
     if (outputKey === 'whoami') return 'visitor';
     if (outputKey === 'pwd') return '/home/visitor';
     if (outputKey === 'uname')
@@ -219,6 +256,8 @@ export default function Terminal({
     themeTransitionsReady,
     onReady,
     onExit,
+    projects,
+    journeys,
 }: TerminalProps) {
     const { language, t } = useLang();
     const { resolvedAppearance } = useAppearance();
@@ -247,8 +286,8 @@ export default function Terminal({
     }, [onReady]);
 
     const outputFor = useCallback(
-        (entry: TerminalEntry) => getOutput(entry, language),
-        [language],
+        (entry: TerminalEntry) => getOutput(entry, language, projects, journeys),
+        [journeys, language, projects],
     );
 
     const skipTyping = useCallback(() => {
