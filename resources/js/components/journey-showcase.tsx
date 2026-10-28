@@ -4,53 +4,21 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLang } from '@/lib/i18n';
 import { JOURNEY_CONFIG } from '@/data/journey-config';
+import type { Journey } from '@/types';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const journeyItems = [
-    {
-        number: '01',
-        category: 'education',
-        period: 'journeyPeriodPlaceholder',
-        organization: 'educationTitlePlaceholder',
-        role: 'educationDetailPlaceholder',
-        activities: [
-            'journeyActivityOnePlaceholder',
-            'journeyActivityTwoPlaceholder',
-            'journeyActivityThreePlaceholder',
-        ],
-        logoSrc: null as string | null,
-        documentationSrc: null as string | null,
-    },
-    {
-        number: '02',
-        category: 'internship',
-        period: 'journeyPeriodPlaceholder',
-        organization: 'companyPlaceholder',
-        role: 'internshipTitlePlaceholder',
-        activities: [
-            'journeyActivityOnePlaceholder',
-            'journeyActivityTwoPlaceholder',
-            'journeyActivityThreePlaceholder',
-        ],
-        logoSrc: null as string | null,
-        documentationSrc: null as string | null,
-    },
-    {
-        number: '03',
-        category: 'workExperience',
-        period: 'journeyPeriodPlaceholder',
-        organization: 'companyPlaceholder',
-        role: 'workTitlePlaceholder',
-        activities: [
-            'journeyActivityOnePlaceholder',
-            'journeyActivityTwoPlaceholder',
-            'journeyActivityThreePlaceholder',
-        ],
-        logoSrc: null as string | null,
-        documentationSrc: null as string | null,
-    },
-] as const;
+type JourneyCardItem = {
+    id: number;
+    number: string;
+    category: Journey['category'];
+    period: string;
+    organization: string;
+    role: string;
+    activities: string[];
+    logoSrc: string | null;
+    documentationSrc: string | null;
+};
 
 const fragmentRows = 3;
 const fragmentColumns = 5;
@@ -63,9 +31,20 @@ const journeyFragments = Array.from(
     }),
 );
 
-export function JourneyShowcase() {
+export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
     const sectionRef = useRef<HTMLElement>(null);
     const { t } = useLang();
+    const journeyItems: JourneyCardItem[] = journeys.map((journey, index) => ({
+        id: journey.id,
+        number: String(index + 1).padStart(2, '0'),
+        category: journey.category,
+        period: `${journey.startYear} — ${journey.endYear ?? t('journeyCurrent')}`,
+        organization: journey.organization,
+        role: journey.title,
+        activities: journey.activities,
+        logoSrc: journey.logoUrl,
+        documentationSrc: journey.documentationUrl,
+    }));
 
     useGSAP(
         () => {
@@ -364,10 +343,10 @@ export function JourneyShowcase() {
 
             return () => media.revert();
         },
-        { scope: sectionRef, dependencies: [] },
+        { scope: sectionRef, dependencies: [journeys.length] },
     );
 
-    const renderEntryContent = (item: (typeof journeyItems)[number]) => (
+    const renderEntryContent = (item: JourneyCardItem) => (
         <div className="journey-entry-face">
             <div className="journey-entry-header">
                 <div className="journey-entry-identity">
@@ -375,7 +354,7 @@ export function JourneyShowcase() {
                         <img
                             className="journey-entry-logo"
                             src={item.logoSrc}
-                            alt={`${t(item.organization)} — ${t('journeyOrganizationLogo')}`}
+                            alt={`${item.organization} — ${t('journeyOrganizationLogo')}`}
                             loading="lazy"
                             decoding="async"
                         />
@@ -392,24 +371,24 @@ export function JourneyShowcase() {
                             {t(item.category)}
                         </span>
                         <p className="journey-entry-organization">
-                            {t(item.organization)}
+                            {item.organization}
                         </p>
-                        <h3>{t(item.role)}</h3>
+                        <h3>{item.role}</h3>
                     </div>
                 </div>
-                <p className="journey-entry-period">{t(item.period)}</p>
+                <p className="journey-entry-period">{item.period}</p>
             </div>
             <div className="journey-entry-body">
                 <ul className="journey-entry-activities">
                     {item.activities.map((activity) => (
-                        <li key={activity}>{t(activity)}</li>
+                        <li key={activity}>{activity}</li>
                     ))}
                 </ul>
                 <div className="journey-entry-documentation">
                     {item.documentationSrc ? (
                         <img
                             src={item.documentationSrc}
-                            alt={`${t('journeyDocumentation')} — ${t(item.role)}`}
+                            alt={`${t('journeyDocumentation')} — ${item.role}`}
                             loading="lazy"
                             decoding="async"
                         />
@@ -426,6 +405,10 @@ export function JourneyShowcase() {
             </div>
         </div>
     );
+
+    if (journeyItems.length === 0) {
+        return null;
+    }
 
     return (
         <section
@@ -444,7 +427,7 @@ export function JourneyShowcase() {
                 <div className="journey-list">
                     {journeyItems.map((item) => (
                         <article
-                            key={item.number}
+                            key={item.id}
                             className="journey-entry"
                             data-journey-entry
                             aria-label={`${t(item.category)} ${item.number}`}
