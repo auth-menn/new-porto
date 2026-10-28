@@ -22,6 +22,8 @@ import { ABOUT_CONFIG } from '@/data/about-config';
 import { setScrollActiveSection } from '@/hooks/use-active-section';
 import { useLang } from '@/lib/i18n';
 import { goToSection } from '@/lib/scroll-nav';
+import type { Journey, Project } from '@/types';
+import { TECH_STACK } from '@/data/tech-stack';
 
 const LazyTerminal = lazy(() => import('@/components/terminal'));
 
@@ -29,6 +31,8 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
 type HomeFrameProps = {
+    projects: Project[];
+    journeys: Journey[];
     themeTransitionsReady: boolean;
 };
 
@@ -38,65 +42,6 @@ type FrameShape = {
 
 const homeContent = {
     photoAlt: 'Firman Maulana Syabani, IT Developer',
-    marqueeItems: [
-        {
-            name: 'HTML',
-            icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg',
-            mode: 'image',
-        },
-        {
-            name: 'CSS',
-            icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg',
-            mode: 'image',
-        },
-        { name: 'PHP', icon: 'php', color: '777BB4', mode: 'brand' },
-        {
-            name: 'JAVASCRIPT',
-            icon: 'javascript',
-            color: 'F7DF1E',
-            mode: 'brand',
-        },
-        { name: 'REACT', icon: 'react', color: '61DAFB', mode: 'brand' },
-        {
-            name: 'TYPESCRIPT',
-            icon: 'typescript',
-            color: '3178C6',
-            mode: 'brand',
-        },
-        {
-            name: 'NEXT.JS',
-            icon: 'nextdotjs',
-            color: '000000',
-            mode: 'current',
-        },
-        {
-            name: 'PYTHON',
-            icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg',
-            mode: 'image',
-        },
-        { name: 'LARAVEL', icon: 'laravel', color: 'FF2D20', mode: 'brand' },
-        {
-            name: 'BOOTSTRAP',
-            icon: 'bootstrap',
-            color: '7952B3',
-            mode: 'brand',
-        },
-        {
-            name: 'TAILWIND CSS',
-            icon: 'tailwindcss',
-            color: '06B6D4',
-            mode: 'brand',
-        },
-        { name: 'SQL', icon: null, mode: 'current' },
-        { name: 'GITHUB', icon: 'github', color: '000000', mode: 'current' },
-        { name: 'FIGMA', icon: 'figma', color: 'F24E1E', mode: 'brand' },
-        { name: 'POSTMAN', icon: 'postman', color: 'FF6C37', mode: 'brand' },
-        {
-            name: 'VISUAL STUDIO CODE',
-            icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg',
-            mode: 'image',
-        },
-    ],
 } as const;
 const MARQUEE_SPEED_PX_PER_SECOND = 35;
 
@@ -201,7 +146,7 @@ function MenuMarquee() {
                         aria-hidden={copyIndex > 0 || undefined}
                         className="inline-flex items-center"
                     >
-                        {homeContent.marqueeItems.map((item) => (
+                        {TECH_STACK.map((item) => (
                             <span
                                 key={item.name}
                                 className="inline-flex items-center px-[1.5em]"
@@ -246,7 +191,7 @@ function MenuMarquee() {
     );
 }
 
-export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
+export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFrameProps) {
     const frameRef = useRef<HTMLElement>(null);
     const sceneRef = useRef<HTMLDivElement>(null);
     const zoomRef = useRef<HTMLDivElement>(null);
@@ -310,7 +255,7 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                       : 0;
 
                 window.scrollTo({ top, behavior: 'instant' });
-                ScrollTrigger.update(true);
+                ScrollTrigger.update();
                 trigger?.animation?.progress(ABOUT_CONFIG.restAt);
 
                 const aboutLayer = scene?.querySelector<HTMLElement>(
@@ -1550,6 +1495,7 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                             className="about-deck-transform absolute inset-0"
                         >
                             <ProjectSummary
+                                projects={projects}
                                 heroReady={heroReady}
                                 heroEntered={heroEntered}
                                 reducedMotion={reducedMotion}
@@ -1615,6 +1561,8 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                                         }
                                         onReady={markTerminalReady}
                                         onExit={() => goToSection('home')}
+                                        projects={projects}
+                                        journeys={journeys}
                                     />
                                 </Suspense>
                             ) : (
@@ -1627,8 +1575,8 @@ export function HomeFrame({ themeTransitionsReady }: HomeFrameProps) {
                     </section>
                 </div>
             </section>
-            <ProjectShowcase />
-            <JourneyShowcase />
+            <ProjectShowcase projects={projects} />
+            <JourneyShowcase journeys={journeys} />
             <ContactShowcase />
         </div>
     );
