@@ -12,27 +12,28 @@ import { gsap } from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_CONFIG } from '@/data/about-config';
-import { projects } from '@/data/projects';
 import { PROJECT_CONFIG } from '@/data/project-config';
 import { useLang } from '@/lib/i18n';
+import type { Project } from '@/types';
 
 gsap.registerPlugin(useGSAP, ScrollToPlugin, ScrollTrigger);
 
 type Device = 'laptop' | 'mobile';
+type ProjectShowcaseProps = { projects: Project[] };
 
 function ProjectScreen({
     project,
     index,
-    language,
     active,
+    device,
 }: {
-    project: (typeof projects)[number];
+    project: Project;
     index: number;
-    language: 'id' | 'en';
     active: boolean;
+    device: Device;
 }) {
     const [imageMissing, setImageMissing] = useState(false);
-    const title = language === 'id' ? project.titleId : project.titleEn;
+    const title = project.title;
 
     return (
         <article
@@ -43,7 +44,7 @@ function ProjectScreen({
         >
             {!imageMissing ? (
                 <img
-                    src={`/images/projects/project-${index + 1}.webp`}
+                    src={device === 'laptop' ? project.laptopImageUrl : project.mobileImageUrl}
                     alt={title}
                     width="1200"
                     height="750"
@@ -61,8 +62,8 @@ function ProjectScreen({
     );
 }
 
-export function ProjectShowcase() {
-    const { language, t } = useLang();
+export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
+    const { t } = useLang();
     const sectionRef = useRef<HTMLElement>(null);
     const photoRef = useRef<HTMLDivElement>(null);
     const photoFlyRef = useRef<HTMLDivElement>(null);
@@ -174,7 +175,7 @@ export function ProjectShowcase() {
         '--project-mobile-counter-offset': PROJECT_CONFIG.mobile.counterOffset,
         '--project-z-index': PROJECT_CONFIG.zIndex,
         '--project-fly-z-index': PROJECT_CONFIG.flight.zIndex,
-        '--project-count': projects.length,
+        '--project-count': Math.max(projects.length, 1),
         '--project-photo-clip-overhang': `-${PROJECT_CONFIG.photoClipOverhangVh * 100}dvh`,
     } as CSSProperties;
 
@@ -854,6 +855,10 @@ export function ProjectShowcase() {
 
     const activeProject = projects[activeIndex];
 
+    if (projects.length === 0) {
+        return null;
+    }
+
     const renderDevice = (device: Device, index: number) => (
         <div
             ref={device === 'laptop' ? laptopRef : phoneRef}
@@ -874,8 +879,8 @@ export function ProjectShowcase() {
                             key={project.id}
                             project={project}
                             index={projectIndex}
-                            language={language}
                             active={projectIndex === activeIndex}
+                            device={device}
                         />
                     ))}
                 </div>
@@ -899,13 +904,13 @@ export function ProjectShowcase() {
                 decoding="async"
                 draggable={false}
             />
-            {activeProject?.liveDemoUrl && (
+            {activeProject?.link && (
                 <a
                     className="project-device-demo-link"
-                    href={activeProject.liveDemoUrl}
+                    href={activeProject.link}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label={`${t('viewLiveDemo')}: ${language === 'id' ? activeProject.titleId : activeProject.titleEn}`}
+                    aria-label={`${t('viewLiveDemo')}: ${activeProject.title}`}
                 >
                     <svg
                         viewBox="0 0 24 24"
