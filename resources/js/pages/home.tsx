@@ -3,8 +3,9 @@ import { Head } from '@inertiajs/react';
 import { HomeFrame } from '@/components/home-frame';
 import { SiteHeader } from '@/components/site-header';
 import { useAppearance } from '@/hooks/use-appearance';
+import type { Journey, Project } from '@/types';
 
-export default function Home() {
+export default function Home({ projects, journeys }: { projects: Project[]; journeys: Journey[] }) {
     const { resolvedAppearance, updateAppearance } = useAppearance();
     const [themeTransitionsReady, setThemeTransitionsReady] = useState(false);
     const isDark = resolvedAppearance === 'dark';
@@ -27,7 +28,7 @@ export default function Home() {
                 }
                 themeTransitionsReady={themeTransitionsReady}
             />
-            <HomeFrame themeTransitionsReady={themeTransitionsReady} />
+            <HomeFrame projects={projects} journeys={journeys} themeTransitionsReady={themeTransitionsReady} />
         </>
     );
 }
