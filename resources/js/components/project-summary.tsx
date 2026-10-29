@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { projects } from '@/data/projects';
 import { useLang } from '@/lib/i18n';
+import type { Project } from '@/types';
 
 type ProjectSummaryProps = {
+    projects: Project[];
     heroReady: boolean;
     heroEntered: boolean;
     reducedMotion: boolean;
@@ -12,27 +13,25 @@ type ProjectSummaryProps = {
 };
 
 const PILE_DEPTH = 3;
-const PROJECT_COUNT = projects.length;
-
 function ProjectCard({
     project,
     index,
-    language,
     setCardRef,
     setImageRef,
+    onImageAspectChange,
     active,
     visible,
 }: {
-    project: (typeof projects)[number];
+    project: Project;
     index: number;
-    language: 'id' | 'en';
     setCardRef: (index: number, element: HTMLElement | null) => void;
     setImageRef: (index: number, element: HTMLDivElement | null) => void;
+    onImageAspectChange: (index: number, aspectRatio: number) => void;
     active: boolean;
     visible: boolean;
 }) {
     const [imageMissing, setImageMissing] = useState(false);
-    const title = language === 'id' ? project.titleId : project.titleEn;
+    const title = project.title;
 
     return (
         <article
@@ -48,17 +47,26 @@ function ProjectCard({
                     className="project-card-image-visual"
                 >
                     {!imageMissing ? (
-                        <img
-                            src={`/images/projects/project-${index + 1}.webp`}
-                            alt={title}
-                            width="960"
-                            height="600"
-                            loading={index === 0 ? 'eager' : 'lazy'}
-                            fetchPriority={index === 0 ? 'high' : undefined}
-                            decoding="async"
-                            onError={() => setImageMissing(true)}
-                            className="project-card-image"
-                        />
+                        <picture className="block h-full w-full">
+                            <source media="(max-width: 767px)" srcSet={project.mobileImageUrl} />
+                            <img
+                                src={project.laptopImageUrl}
+                                alt={title}
+                                width="960"
+                                height="600"
+                                loading={index === 0 ? 'eager' : 'lazy'}
+                                fetchPriority={index === 0 ? 'high' : undefined}
+                                decoding="async"
+                                onLoad={(event) => {
+                                    const { naturalWidth, naturalHeight } = event.currentTarget;
+                                    if (naturalHeight > 0) {
+                                        onImageAspectChange(index, naturalWidth / naturalHeight);
+                                    }
+                                }}
+                                onError={() => setImageMissing(true)}
+                                className="project-card-image"
+                            />
+                        </picture>
                     ) : (
                         <div
                             aria-hidden="true"
@@ -80,19 +88,27 @@ function ProjectCard({
 }
 
 export function ProjectSummary({
+    projects,
     heroReady,
     heroEntered,
     reducedMotion,
     onEntranceComplete,
     showHeader = true,
 }: ProjectSummaryProps) {
-    const { language, t } = useLang();
+    const { t } = useLang();
+    const projectCount = Math.max(projects.length, 1);
     const sectionRef = useRef<HTMLElement>(null);
     const viewportRef = useRef<HTMLDivElement>(null);
     const trackRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<Array<HTMLElement | null>>([]);
     const imageRefs = useRef<Array<HTMLDivElement | null>>([]);
+    const setCardAspectRatio = (index: number, aspectRatio: number) => {
+        cardRefs.current[index]?.style.setProperty(
+            '--project-card-aspect',
+            `${aspectRatio}`,
+        );
+    };
     const metricsRef = useRef({
         step: 1,
         cardHeight: 1,
@@ -173,11 +189,11 @@ export function ProjectSummary({
                       metrics.step
                     : viewport.scrollTop / metrics.step;
                 const progress = Math.min(
-                    PROJECT_COUNT - 1,
+                    projectCount - 1,
                     Math.max(0, rawProgress),
                 );
                 const nearestIndex = Math.min(
-                    PROJECT_COUNT - 1,
+                    projectCount - 1,
                     Math.max(0, Math.round(progress)),
                 );
                 const outgoingIndex = Math.floor(progress);
@@ -253,7 +269,7 @@ export function ProjectSummary({
                     : 0;
                 const lastPosition = flowLayout
                     ? firstPosition +
-                      metricsRef.current.step * (PROJECT_COUNT - 1)
+                      metricsRef.current.step * (projectCount - 1)
                     : viewport.scrollHeight;
 
                 scrollTarget.scrollTo({
@@ -278,7 +294,7 @@ export function ProjectSummary({
             window.removeEventListener('resize', measure);
             cancelAnimationFrame(animationFrame);
         };
-    }, [flowLayout, reducedMotion]);
+    }, [flowLayout, projectCount, reducedMotion]);
 
     const onEntranceEnd = (event: React.AnimationEvent<HTMLElement>) => {
         if (event.target === event.currentTarget) {
@@ -286,6 +302,10 @@ export function ProjectSummary({
             onEntranceComplete();
         }
     };
+
+    if (projects.length === 0) {
+        return null;
+    }
 
     return (
         <section
@@ -310,7 +330,7 @@ export function ProjectSummary({
                     <div className="project-summary-label font-michroma">
                         <span>{t('projects')}</span>
                         <span aria-live="off">
-                            {String(activeIndex + 1).padStart(2, '0')} / 05
+                            {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
                         </span>
                     </div>
                 )}
@@ -330,7 +350,6 @@ export function ProjectSummary({
                                     key={project.id}
                                     project={project}
                                     index={index}
-                                    language={language}
                                     active={index === activeIndex}
                                     visible={
                                         Math.abs(index - activeIndex) <=
@@ -342,6 +361,7 @@ export function ProjectSummary({
                                     setImageRef={(cardIndex, element) => {
                                         imageRefs.current[cardIndex] = element;
                                     }}
+                                    onImageAspectChange={setCardAspectRatio}
                                 />
                             ))}
                         </div>
