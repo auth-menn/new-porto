@@ -31,7 +31,16 @@ function ProjectCard({
     visible: boolean;
 }) {
     const [imageMissing, setImageMissing] = useState(false);
+    const imageRef = useRef<HTMLImageElement>(null);
     const title = project.title;
+
+    useEffect(() => {
+        const image = imageRef.current;
+
+        if (image?.complete && image.naturalHeight > 0) {
+            onImageAspectChange(index, image.naturalWidth / image.naturalHeight);
+        }
+    }, [index, project.laptopImageUrl, project.mobileImageUrl]);
 
     return (
         <article
@@ -50,10 +59,9 @@ function ProjectCard({
                         <picture className="block h-full w-full">
                             <source media="(max-width: 767px)" srcSet={project.mobileImageUrl} />
                             <img
+                                ref={imageRef}
                                 src={project.laptopImageUrl}
                                 alt={title}
-                                width="960"
-                                height="600"
                                 loading={index === 0 ? 'eager' : 'lazy'}
                                 fetchPriority={index === 0 ? 'high' : undefined}
                                 decoding="async"
@@ -108,6 +116,13 @@ export function ProjectSummary({
             '--project-card-aspect',
             `${aspectRatio}`,
         );
+
+        if (index === 0) {
+            sectionRef.current?.style.setProperty(
+                '--project-card-aspect',
+                `${aspectRatio}`,
+            );
+        }
     };
     const metricsRef = useRef({
         step: 1,
