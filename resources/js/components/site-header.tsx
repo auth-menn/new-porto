@@ -4,11 +4,13 @@ import { FullscreenMenu } from '@/components/fullscreen-menu';
 import { SiteLogo } from '@/components/site-logo';
 import { FlagGB, FlagID } from '@/components/flags';
 import { useLang } from '@/lib/i18n';
+import type { MenuImages } from '@/types';
 
 type SiteHeaderProps = {
     isDark: boolean;
     onAppearanceToggle: () => void;
     themeTransitionsReady: boolean;
+    menuImages: MenuImages;
 };
 
 type LanguageDropdownProps = {
@@ -215,6 +217,7 @@ export function SiteHeader({
     isDark,
     onAppearanceToggle,
     themeTransitionsReady,
+    menuImages,
 }: SiteHeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const headerRef = useRef<HTMLElement>(null);
@@ -299,6 +302,7 @@ export function SiteHeader({
                 triggerRef={triggerRef}
                 headerRef={headerRef}
                 themeTransitionsReady={themeTransitionsReady}
+                menuImages={menuImages}
             />
         </header>
     );
