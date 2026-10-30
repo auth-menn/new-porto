@@ -1316,8 +1316,8 @@ html:not(.js) .about-roll {
 .project-summary {
     --project-left: max(66%, calc(50% + 21.2dvh + 2%));
     --peek: 22px;
-    --project-card-height: 62.5cqw;
-    --project-step: 34.375cqw;
+    --project-card-height: calc(100cqw / var(--project-card-aspect, 1.6));
+    --project-step: calc(var(--project-card-height) * 0.55);
     --project-stage-height: calc(var(--project-card-height) + 6 * var(--peek));
     --site-header-h: max(56px, 6.9vh);
     position: absolute;
@@ -1473,7 +1473,7 @@ html:not(.js) .about-roll {
     );
     margin: 0 auto 64px;
     --peek: 16px;
-    --project-card-height: 62.5cqw;
+    --project-card-height: calc(100cqw / var(--project-card-aspect, 1.6));
     --project-step: calc(var(--project-card-height) * 0.55);
     --project-stage-height: calc(var(--project-card-height) + 6 * var(--peek));
 }
