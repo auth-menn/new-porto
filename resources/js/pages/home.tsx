@@ -3,9 +3,9 @@ import { Head } from '@inertiajs/react';
 import { HomeFrame } from '@/components/home-frame';
 import { SiteHeader } from '@/components/site-header';
 import { useAppearance } from '@/hooks/use-appearance';
-import type { Journey, Project } from '@/types';
+import type { Journey, MenuImages, Project } from '@/types';
 
-export default function Home({ projects, journeys }: { projects: Project[]; journeys: Journey[] }) {
+export default function Home({ projects, journeys, menuImages }: { projects: Project[]; journeys: Journey[]; menuImages: MenuImages }) {
     const { resolvedAppearance, updateAppearance } = useAppearance();
     const [themeTransitionsReady, setThemeTransitionsReady] = useState(false);
     const isDark = resolvedAppearance === 'dark';
@@ -23,6 +23,7 @@ export default function Home({ projects, journeys }: { projects: Project[]; jour
             <Head title="Firman Maulana Syabani | IT Developer" />
             <SiteHeader
                 isDark={isDark}
+                menuImages={menuImages}
                 onAppearanceToggle={() =>
                     updateAppearance(isDark ? 'light' : 'dark')
                 }
