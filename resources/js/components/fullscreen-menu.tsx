@@ -8,6 +8,7 @@ import {
 } from '@/hooks/use-active-section';
 import { useLang } from '@/lib/i18n';
 import { goToSection } from '@/lib/scroll-nav';
+import type { MenuImages } from '@/types';
 
 type FullscreenMenuProps = {
     isOpen: boolean;
@@ -15,6 +16,7 @@ type FullscreenMenuProps = {
     triggerRef: RefObject<HTMLButtonElement | null>;
     headerRef: RefObject<HTMLElement | null>;
     themeTransitionsReady: boolean;
+    menuImages: MenuImages;
 };
 
 const pageLinks = [
@@ -26,7 +28,7 @@ const pageLinks = [
 ] as const;
 
 const socialLinks = ['github', 'linkedin', 'instagram', 'youtube'] as const;
-const menuImages = [
+const defaultMenuImages = [
     '/images/menu/menu-1.webp',
     '/images/menu/menu-2.webp',
     '/images/menu/menu-3.webp',
@@ -45,14 +47,16 @@ function MenuPhoto({ src }: { src: string }) {
                     loading="lazy"
                     decoding="async"
                     onError={() => setAvailable(false)}
-                    className="absolute inset-0 size-full object-cover grayscale"
+                    className="absolute inset-0 size-full object-cover"
                 />
             )}
         </div>
     );
 }
 
-function PhotoColumn({ reverse = false }: { reverse?: boolean }) {
+function PhotoColumn({ images, reverse = false }: { images: MenuImages['left']; reverse?: boolean }) {
+    const photos = images.length ? images : defaultMenuImages.map((imageUrl, id) => ({ id, imageUrl }));
+
     return (
         <div
             aria-hidden="true"
@@ -66,8 +70,8 @@ function PhotoColumn({ reverse = false }: { reverse?: boolean }) {
                         key={set}
                         className="menu-photo-set flex flex-col gap-[4vh] pb-[4vh]"
                     >
-                        {menuImages.map((src, index) => (
-                            <MenuPhoto key={`${src}-${index}`} src={src} />
+                        {photos.map((photo, index) => (
+                            <MenuPhoto key={`${photo.id}-${index}`} src={photo.imageUrl} />
                         ))}
                     </div>
                 ))}
@@ -82,6 +86,7 @@ export function FullscreenMenu({
     triggerRef,
     headerRef,
     themeTransitionsReady,
+    menuImages,
 }: FullscreenMenuProps) {
     const dialogRef = useRef<HTMLDivElement>(null);
     const { t } = useLang();
@@ -222,8 +227,8 @@ export function FullscreenMenu({
                 <div
                     className={`pointer-events-none absolute inset-0 hidden overflow-hidden md:block ${isOpen ? '' : '[&_*]:[animation-play-state:paused]'}`}
                 >
-                    <PhotoColumn />
-                    <PhotoColumn reverse />
+                    <PhotoColumn images={menuImages.left} />
+                    <PhotoColumn images={menuImages.right} reverse />
                 </div>
 
                 <nav
