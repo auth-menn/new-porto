@@ -20,6 +20,7 @@ export default function Home({ projects, journeys, menuImages }: { projects: Pro
 
     return (
         <>
+        
             <Head title="Firman Maulana Syabani | IT Developer" />
             <SiteHeader
                 isDark={isDark}
