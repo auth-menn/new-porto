@@ -51,8 +51,6 @@ export function ContactShowcase() {
                     <span className="shadow-l2" />
                     <span className="left-glow" />
                     <span className="left-glow2" />
-                    <span className="r-glow" />
-                    <span className="r-glow2" />
                     <span className="mid-ring" />
                     <span className="mid-ring small" />
                     <span className="glow" />
