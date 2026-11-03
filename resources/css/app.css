@@ -2598,10 +2598,11 @@ html:not(.js) .project-photo {
 	height: 50%;
 	background-image: radial-gradient(
 		circle at -80% -12%,
-		transparent 50em,
-		var(--lgc2) 50.3em,
-		transparent 52em
+		transparent 49.5em,
+		var(--lgc2) 51em,
+		transparent 53em
 	);
+	filter: blur(max(0.3em, 0.6px));
 	position: absolute;
 	translate: -19em 10.35em;
 	clip-path: polygon(0 0, 100% 0, 100% 78%, 0 78%);
@@ -2623,10 +2624,11 @@ html:not(.js) .project-photo {
 	height: 50%;
 	background-image: radial-gradient(
 		circle at -80% -12%,
-		transparent 50em,
-		var(--lgc2) 50.3em,
-		transparent 52em
+		transparent 49.5em,
+		var(--lgc2) 51em,
+		transparent 53em
 	);
+	filter: blur(max(0.3em, 0.6px));
 	position: absolute;
 	translate: 18.2em 10.35em;
 	clip-path: polygon(0 0, 100% 0, 100% 78%, 0 78%);
