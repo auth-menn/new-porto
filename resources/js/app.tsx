@@ -11,8 +11,17 @@ const appName = 'Firman Maulana Syabani | IT Developer';
 initializeLanguage();
 
 void createInertiaApp({
-    title: (title) =>
-        title === '404' ? '404 | Firman Maulana Syabani' : appName,
+    title: (title) => {
+        if (title === '404') {
+            return '404 | Firman Maulana Syabani';
+        }
+
+        if (!title || title === appName) {
+            return appName;
+        }
+
+        return `${title} | Firman Maulana Syabani`;
+    },
     layout: (name) => {
         if (name.startsWith('auth/')) {
             return AuthLayout;

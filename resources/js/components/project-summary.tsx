@@ -57,7 +57,10 @@ function ProjectCard({
                 >
                     {!imageMissing ? (
                         <picture className="block h-full w-full">
-                            <source media="(max-width: 767px)" srcSet={project.mobileImageUrl} />
+                            <source
+                                media="(max-width: 767px) and (orientation: landscape)"
+                                srcSet={project.mobileImageUrl}
+                            />
                             <img
                                 ref={imageRef}
                                 src={project.laptopImageUrl}
@@ -131,24 +134,8 @@ export function ProjectSummary({
         documentTop: 0,
         stickyTop: 0,
     });
-    const [flowLayout, setFlowLayout] = useState(false);
+    const flowLayout = false;
     const [activeIndex, setActiveIndex] = useState(0);
-
-    useEffect(() => {
-        const updateLayout = () => {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            const left = Math.max(width * 0.66, width * 0.52 + height * 0.212);
-            const availableWidth = width * 0.94 - left;
-
-            setFlowLayout(width < 768 || availableWidth < 300);
-        };
-
-        updateLayout();
-        window.addEventListener('resize', updateLayout, { passive: true });
-
-        return () => window.removeEventListener('resize', updateLayout);
-    }, []);
 
     useEffect(() => {
         const section = sectionRef.current;
@@ -309,7 +296,7 @@ export function ProjectSummary({
             window.removeEventListener('resize', measure);
             cancelAnimationFrame(animationFrame);
         };
-    }, [flowLayout, projectCount, reducedMotion]);
+    }, [projectCount, reducedMotion]);
 
     const onEntranceEnd = (event: React.AnimationEvent<HTMLElement>) => {
         if (event.target === event.currentTarget) {

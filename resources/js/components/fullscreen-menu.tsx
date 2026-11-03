@@ -65,7 +65,7 @@ function PhotoColumn({ images, reverse = false }: { images: MenuImages['left']; 
             <div
                 className={`menu-photo-track flex flex-col ${reverse ? 'menu-photo-track-reverse' : ''}`}
             >
-                {[0, 1].map((set) => (
+                {[0, 1, 2, 3].map((set) => (
                     <div
                         key={set}
                         className="menu-photo-set flex flex-col gap-[4vh] pb-[4vh]"
@@ -223,9 +223,9 @@ export function FullscreenMenu({
                     : '0ms, 450ms, 0ms, 0ms',
             }}
         >
-            <div className="relative min-h-dvh overflow-hidden px-6 pt-24 pb-10 sm:px-10 md:px-0 md:pt-0 md:pb-0">
+            <div className="fullscreen-menu-content relative min-h-dvh overflow-hidden px-6 pt-24 pb-10 sm:px-10 md:px-0 md:pt-0 md:pb-0">
                 <div
-                    className={`pointer-events-none absolute inset-0 hidden overflow-hidden md:block ${isOpen ? '' : '[&_*]:[animation-play-state:paused]'}`}
+                    className={`fullscreen-menu-gallery pointer-events-none absolute inset-0 overflow-hidden ${isOpen ? '' : '[&_*]:[animation-play-state:paused]'}`}
                 >
                     <PhotoColumn images={menuImages.left} />
                     <PhotoColumn images={menuImages.right} reverse />
@@ -233,7 +233,7 @@ export function FullscreenMenu({
 
                 <nav
                     aria-label={t('pages')}
-                    className="relative z-10 mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center text-center md:absolute md:top-1/2 md:left-[77%] md:min-h-0 md:w-[42%] md:-translate-x-1/2 md:-translate-y-1/2"
+                    className="fullscreen-menu-nav relative z-10 mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center text-center md:absolute md:top-1/2 md:left-[77%] md:min-h-0 md:w-[42%] md:-translate-x-1/2 md:-translate-y-1/2"
                 >
                     <ul className="space-y-0 font-michroma text-[clamp(26px,3.6vw,72px)] leading-[1.15] uppercase">
                         {pageLinks.map((item, index) => (
@@ -339,12 +339,12 @@ export function FullscreenMenu({
                         </span>
                     </div>
 
-                    <div className="mt-10 flex flex-col items-center gap-5 md:hidden">
+                    <div className="fullscreen-menu-contact-mobile mt-10 flex flex-col items-center gap-5 md:hidden">
                         <ContactAndSocial closeOnClick={closeOnClick} />
                     </div>
                 </nav>
 
-                <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center gap-5 pb-4 md:absolute md:right-[6%] md:bottom-[4%] md:w-[42%] md:max-w-none md:pb-0">
+                <div className="fullscreen-menu-contact-desktop relative z-10 mx-auto flex max-w-xl flex-col items-center gap-5 pb-4 md:absolute md:right-[6%] md:bottom-[4%] md:w-[42%] md:max-w-none md:pb-0">
                     <div className="hidden flex-col items-center gap-4 md:flex">
                         <ContactAndSocial closeOnClick={closeOnClick} />
                     </div>

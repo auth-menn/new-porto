@@ -53,8 +53,8 @@ export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
             media.add(
                 {
                     motion: '(prefers-reduced-motion: no-preference)',
-                    desktop: '(min-width: 768px)',
-                    mobile: '(max-width: 767px)',
+                    desktop: '(orientation: landscape)',
+                    mobile: '(orientation: portrait)',
                 },
                 (context) => {
                     const section = sectionRef.current;

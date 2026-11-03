@@ -238,7 +238,7 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                         PROJECT_CONFIG.animation.reducedMotionQuery,
                     ).matches;
                     const isMobile = window.matchMedia(
-                        `(max-width: ${PROJECT_CONFIG.mobile.breakpoint - 1}px)`,
+                        '(orientation: portrait)',
                     ).matches;
                     let terminalInteractivity = false;
                     let photoPositions: ReturnType<typeof applyPhotoGeometry>;
@@ -279,17 +279,49 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                     const getPhotoRestBox = (bounds: DOMRect) => {
                         const viewportWidth = window.innerWidth;
                         const viewportHeight = window.innerHeight;
-                        const mobile = window.matchMedia(
-                            `(max-width: ${PROJECT_CONFIG.mobile.breakpoint - 1}px)`,
+                        const portrait = window.matchMedia(
+                            '(orientation: portrait)',
                         ).matches;
-                        const headTopPct = mobile
-                            ? (PROJECT_CONFIG.mobile.photoHeadTopMinPct +
-                                  PROJECT_CONFIG.mobile.photoHeadTopMaxPct) /
-                              2
-                            : PROJECT_CONFIG.headTopPct;
-                        const centerXPct = mobile
-                            ? PROJECT_CONFIG.mobile.photoCenterXPct
-                            : PROJECT_CONFIG.centerXPct;
+                        const compactLandscape =
+                            !portrait &&
+                            viewportWidth >= 768 &&
+                            viewportWidth <= 1600 &&
+                            viewportWidth / viewportHeight <= 1.5;
+                        const compactPortrait =
+                            portrait &&
+                            viewportWidth >= 768 &&
+                            viewportWidth <= 1600;
+                        const shortLandscape =
+                            !portrait && viewportHeight <= 600;
+                        const mobile = portrait;
+                        const headTopPct =
+                            portrait || compactLandscape || shortLandscape
+                            ? 0.25
+                            : mobile
+                              ? (PROJECT_CONFIG.mobile.photoHeadTopMinPct +
+                                    PROJECT_CONFIG.mobile.photoHeadTopMaxPct) /
+                                2
+                              : PROJECT_CONFIG.headTopPct;
+                        const centerXPct = portrait
+                            ? compactPortrait
+                                ? 0.1
+                                : 0.25
+                            : compactLandscape
+                              ? 0.16
+                              : shortLandscape
+                                ? 0.14
+                              : mobile
+                                ? PROJECT_CONFIG.mobile.photoCenterXPct
+                                : PROJECT_CONFIG.centerXPct;
+                        const photoScale = portrait
+                            ? compactPortrait
+                                ? 0.88
+                                : 0.85
+                            : compactLandscape
+                              ? 0.72
+                              : shortLandscape
+                                ? 0.78
+                              : 1;
                         const topPadding =
                             PROJECT_CONFIG.photoTopPadding[
                                 document.documentElement.classList.contains(
@@ -298,17 +330,18 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                                     ? 'dark'
                                     : 'light'
                             ];
-                        const left =
-                            viewportWidth * centerXPct - bounds.width / 2;
+                        const width = bounds.width * photoScale;
+                        const height = bounds.height * photoScale;
+                        const left = viewportWidth * centerXPct - width / 2;
                         const top =
                             viewportHeight * headTopPct -
-                            bounds.height * topPadding;
+                            height * topPadding;
 
                         return {
                             left,
                             top,
-                            width: bounds.width,
-                            height: bounds.height,
+                            width,
+                            height,
                         };
                     };
 
@@ -432,6 +465,8 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                         const handoffStart = {
                             x: photoPositions.about.x,
                             y: photoPositions.about.y,
+                            width: photoPositions.about.width,
+                            height: photoPositions.about.height,
                         };
                         const flightProgress = { value: 0 };
                         const setFlightX = gsap.quickSetter(
@@ -444,19 +479,45 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                             'y',
                             'px',
                         );
+                        const setFlightWidth = gsap.quickSetter(
+                            photoFly,
+                            'width',
+                            'px',
+                        );
+                        const setFlightHeight = gsap.quickSetter(
+                            photoFly,
+                            'height',
+                            'px',
+                        );
                         const applyFlightPosition = (progress: number) => {
                             if (!photoPositions) return;
+                            const clampedProgress = Math.max(
+                                0,
+                                Math.min(1, progress),
+                            );
                             setFlightX(
                                 handoffStart.x +
                                     (photoPositions.projects.x -
                                         handoffStart.x) *
-                                        progress,
+                                        clampedProgress,
                             );
                             setFlightY(
                                 handoffStart.y +
                                     (photoPositions.projects.y -
                                         handoffStart.y) *
-                                        progress,
+                                        clampedProgress,
+                            );
+                            setFlightWidth(
+                                handoffStart.width +
+                                    (photoPositions.projects.width -
+                                        handoffStart.width) *
+                                        clampedProgress,
+                            );
+                            setFlightHeight(
+                                handoffStart.height +
+                                    (photoPositions.projects.height -
+                                        handoffStart.height) *
+                                        clampedProgress,
                             );
                         };
                         let capturedLiveStart = false;
@@ -509,6 +570,8 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                                     }
                                     handoffStart.x = bounds.left;
                                     handoffStart.y = bounds.top;
+                                    handoffStart.width = bounds.width;
+                                    handoffStart.height = bounds.height;
                                     gsap.set(photoFly, {
                                         width: bounds.width,
                                         height: bounds.height,
@@ -532,6 +595,10 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                                     if (!capturedLiveStart) {
                                         handoffStart.x = photoPositions.about.x;
                                         handoffStart.y = photoPositions.about.y;
+                                        handoffStart.width =
+                                            photoPositions.about.width;
+                                        handoffStart.height =
+                                            photoPositions.about.height;
                                     }
                                     flightTween.invalidate();
                                     flightTween.progress(self.progress, true);
@@ -650,8 +717,8 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
 
                 media.add(
                     {
-                        isMobile: `(max-width: ${PROJECT_CONFIG.mobile.breakpoint - 1}px)`,
-                        isDesktop: `(min-width: ${PROJECT_CONFIG.mobile.breakpoint}px)`,
+                        isMobile: '(orientation: portrait)',
+                        isDesktop: '(orientation: landscape)',
                         reduceMotion:
                             PROJECT_CONFIG.animation.reducedMotionQuery,
                     },

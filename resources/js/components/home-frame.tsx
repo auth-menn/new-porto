@@ -59,24 +59,35 @@ async function decodeImage(image: HTMLImageElement): Promise<void> {
 }
 
 function buildFramePath(width: number, height: number): FrameShape {
-    const isMobile = width < 768;
-    const insetX = width * (isMobile ? 0.03 : 0.042);
+    const isPortrait = height >= width;
+    const isPortraitLayout = isPortrait;
+    const insetX = width * (isPortraitLayout ? 0.03 : 0.042);
     const topSide = Math.max(64, height * 0.075);
-    const bottomSide = isMobile ? height - 44 : height * 0.947;
+    const bottomSide = isPortraitLayout ? height - 44 : height * 0.947;
     const bottomCenter = height * 0.98;
     const radius = Math.min(48, Math.max(16, width * 0.025));
-    const archStart = width * (isMobile ? 0.34 : 0.385);
-    const archFlatStart = width * (isMobile ? 0.38 : 0.425);
-    const archFlatEnd = width * (isMobile ? 0.62 : 0.575);
-    const archEnd = width * (isMobile ? 0.66 : 0.615);
-    const archTop = isMobile ? topSide - 52 : Math.max(6, height * 0.01);
+    const archStart = width *
+        (isPortraitLayout ? 0.32 : 0.385);
+    const archControlStart = width *
+        (isPortraitLayout ? 0.35 : 0.405);
+    const archFlatStart = width *
+        (isPortraitLayout ? 0.39 : 0.425);
+    const archFlatEnd = width *
+        (isPortraitLayout ? 0.61 : 0.575);
+    const archControlEnd = width *
+        (isPortraitLayout ? 0.65 : 0.595);
+    const archEnd = width *
+        (isPortraitLayout ? 0.68 : 0.615);
+    const archTop = isPortrait
+        ? topSide - Math.max(44, Math.min(64, height * 0.055))
+        : Math.max(6, height * 0.01);
 
     const path = [
         `M ${insetX + radius} ${topSide}`,
         `L ${archStart} ${topSide}`,
-        `C ${width * (isMobile ? 0.36 : 0.405)} ${topSide} ${width * (isMobile ? 0.36 : 0.405)} ${archTop} ${archFlatStart} ${archTop}`,
+        `C ${archControlStart} ${topSide} ${archControlStart} ${archTop} ${archFlatStart} ${archTop}`,
         `L ${archFlatEnd} ${archTop}`,
-        `C ${width * (isMobile ? 0.64 : 0.595)} ${archTop} ${width * (isMobile ? 0.64 : 0.595)} ${topSide} ${archEnd} ${topSide}`,
+        `C ${archControlEnd} ${archTop} ${archControlEnd} ${topSide} ${archEnd} ${topSide}`,
         `L ${width - insetX - radius} ${topSide}`,
         `Q ${width - insetX} ${topSide} ${width - insetX} ${topSide + radius}`,
         `L ${width - insetX} ${bottomSide - radius}`,
@@ -129,7 +140,7 @@ function MenuMarquee() {
         <div
             ref={marqueeRef}
             aria-hidden="true"
-            className="absolute right-0 bottom-[5.3%] left-0 z-[1] h-[max(40px,5%)] overflow-hidden font-michroma text-[clamp(9px,0.9vw,16px)] whitespace-nowrap max-[767px]:bottom-[44px]"
+            className="home-tech-marquee absolute right-0 bottom-[5.3%] left-0 z-[1] h-[max(40px,5%)] overflow-hidden font-michroma text-[clamp(9px,0.9vw,16px)] whitespace-nowrap max-[767px]:bottom-[44px]"
         >
             <div
                 ref={trackRef}
@@ -771,6 +782,10 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
             const createTrigger = (isMobile: boolean) => {
                 const photo =
                     scene.querySelector<HTMLElement>('[data-about-photo]');
+                const photoImage =
+                    photo?.querySelector<HTMLImageElement>(
+                        'img[data-hero-photo]',
+                    );
                 const terminalBody =
                     terminalRef.current?.querySelector<HTMLElement>(
                         '.terminal-window',
@@ -851,10 +866,16 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
                 const photoScale = () =>
                     isMobile
                         ? ABOUT_CONFIG.mobilePhotoScale
-                        : ABOUT_CONFIG.photoScale *
-                          (window.innerWidth /
-                              window.innerHeight /
-                              ABOUT_CONFIG.photoReferenceAspect);
+                        : window.matchMedia('(orientation: portrait)').matches
+                          ? ABOUT_CONFIG.photoScale
+                          : ABOUT_CONFIG.photoScale *
+                            Math.min(
+                                1,
+                                window.innerWidth /
+                                    window.innerHeight /
+                                    ABOUT_CONFIG.photoReferenceAspect,
+                            ) *
+                            (window.innerHeight <= 600 ? 0.82 : 1);
                 const getPhotoX = (centerXPct: number) => {
                     if (isMobile) return 0;
 
@@ -873,10 +894,16 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
                 };
                 const getPhotoY = (headTopPct: number) => {
                     const scale = photoScale();
-                    const imageHeight = isMobile
-                        ? 1.95
+                    const photoImageStyle = photoImage
+                        ? getComputedStyle(photoImage)
+                        : null;
+                    const frameHeight = frame.clientHeight || window.innerHeight;
+                    const imageHeight = photoImageStyle
+                        ? Number.parseFloat(photoImageStyle.height) / frameHeight
                         : ABOUT_CONFIG.photoBaseHeight;
-                    const cssTop = isMobile ? 0.184 : 0.061;
+                    const cssTop = photoImageStyle
+                        ? Number.parseFloat(photoImageStyle.top) / frameHeight
+                        : 0.061;
                     const visibleHeadStart =
                         cssTop +
                         ABOUT_CONFIG.photoTopPadding.light * imageHeight;
@@ -1161,8 +1188,8 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
                     timeline.kill();
                 };
             };
-            media.add('(min-width: 768px)', () => createTrigger(false));
-            media.add('(max-width: 767px)', () => createTrigger(true));
+            media.add('(orientation: portrait)', () => createTrigger(true));
+            media.add('(orientation: landscape)', () => createTrigger(false));
             const refreshFrame = window.requestAnimationFrame(() =>
                 ScrollTrigger.refresh(),
             );

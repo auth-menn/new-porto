@@ -14,8 +14,15 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 Route::get('/', function (): InertiaResponse {
     $menuImages = MenuImage::query()->oldest('id')->get()->groupBy('side');
+    $homeSeo = config('seo.home');
 
     return Inertia::render('home', [
+        'seo' => [
+            'title' => $homeSeo['title'],
+            'description' => $homeSeo['description'],
+            'canonicalUrl' => rtrim(config('seo.canonical_url'), '/').'/',
+            'socialImageUrl' => rtrim(config('seo.canonical_url'), '/').$homeSeo['social_image_path'],
+        ],
         'projects' => Project::query()->oldest('id')->get()->map(
             fn (Project $project): array => [
                 'id' => $project->id,
@@ -58,6 +65,16 @@ Route::get('/', function (): InertiaResponse {
         ],
     ]);
 })->name('home');
+
+Route::get('sitemap.xml', function () {
+    return response()->view('sitemap')
+        ->header('Content-Type', 'application/xml; charset=UTF-8');
+})->name('sitemap');
+
+Route::get('robots.txt', function () {
+    return response()->view('robots')
+        ->header('Content-Type', 'text/plain; charset=UTF-8');
+})->name('robots');
 
 Route::get('secret-cms-login', [AuthenticatedSessionController::class, 'create'])
     ->middleware('guest')
