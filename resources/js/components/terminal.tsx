@@ -180,6 +180,7 @@ function getOutput(
     if (outputKey === 'fastfetch') {
         return `visitor@archlinux\n----------------\nName:     Firman Maulana Syabani\nRole:     IT Developer\nStack:    ${TECH_STACK.map((item) => item.name).join(', ')}\nLocation: [Kota], Indonesia\nContact:  hello@example.com`;
     }
+    
     if (outputKey === 'ls')
         return 'about.md  skills.txt  experience.log  education.log  contact.txt  projects/';
     if (outputKey === 'projects')
