@@ -87,7 +87,10 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
     useLayoutEffect(() => {
         setPortalTarget(document.body);
         const section = sectionRef.current;
-        if (!section) return;
+        if (!section) {
+            document.documentElement.dataset.photoOwner = 'about';
+            return;
+        }
 
         const sectionTop = section.getBoundingClientRect().top + window.scrollY;
         const start = sectionTop - window.innerHeight;
