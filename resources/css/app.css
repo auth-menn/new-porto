@@ -2408,9 +2408,9 @@ html:not(.js) .project-photo {
 	content: "";
 	background-image: radial-gradient(
 		circle at 180% -12%,
-		transparent 50.1em,
-		#cacaca 50.3em,
-		var(--base-clr) 50.5em
+		transparent 50em,
+		color-mix(in srgb, #cacaca 35%, var(--base-clr)) 50.6em,
+		var(--base-clr) 51.4em
 	);
 	position: absolute;
 	left: 0;
@@ -4785,7 +4785,7 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
     }
 
     .contact-light-stage {
-        font-size: clamp(2.8px, 0.9vw, 9px);
+        font-size: round(down, clamp(2.8px, 0.9vw, 9px), 0.5px);
     }
 
     #fullscreen-menu .fullscreen-menu-content {
@@ -4908,7 +4908,7 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
 
 @media (orientation: portrait) and (min-width: 768px) {
     .contact-light-stage {
-        font-size: clamp(4px, 0.6vw, 6px);
+        font-size: round(down, clamp(4px, 0.6vw, 6px), 0.5px);
     }
 
     .contact-light-stage .contact-message-trigger {
