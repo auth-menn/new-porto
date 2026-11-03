@@ -2618,7 +2618,7 @@ html:not(.js) .project-photo {
 	clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
 	transform: scaleX(-1);
 } */
-.contact-light-stage .r-glow2 {
+/* .contact-light-stage .r-glow2 {
 	--lgc2: #fffaf680;
 	width: 49%;
 	height: 50%;
@@ -2633,7 +2633,7 @@ html:not(.js) .project-photo {
 	translate: 18.2em 10.35em;
 	clip-path: polygon(0 0, 100% 0, 100% 78%, 0 78%);
 	transform: scaleX(-1) rotate(-2deg);
-}
+} */
 .contact-light-stage .mid-ring.small {
 	translate: 0.04em -8em;
 	scale: 0.8 0.5;
