@@ -1,0 +1,17 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Keep cPanel and certificate validation files reachable from the domain root.
+    RewriteRule ^\.well-known(?:/|$) - [L]
+
+    # Never expose Laravel source, dependencies, repository metadata, or secrets.
+    RewriteRule ^(?:\.env(?:\..*)?|\.git(?:/|$)|app(?:/|$)|bootstrap(?:/|$)|config(?:/|$)|database(?:/|$)|resources(?:/|$)|routes(?:/|$)|storage(?:/|$)|tests(?:/|$)|vendor(?:/|$)|artisan$|composer\.(?:json|lock)$|package(?:-lock)?\.json$|phpunit\.xml$|vite\.config\.[^/]+$) - [F,L,NC]
+
+    # Let the public directory handle its own Laravel rules.
+    RewriteRule ^public(?:/|$) - [L]
+
+    # Serve the Laravel public directory when the domain points at the app root.
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
