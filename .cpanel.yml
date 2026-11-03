@@ -1,7 +1,8 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/ilucnamx/public_html/auth-men-v2
+    - export DEPLOYPATH=/home/ilucnamx/public_html/auth-men.my.id
+    - export PATH=/home/ilucnamx/.nvm/versions/node/v24.11.0/bin:$PATH
     - /bin/mkdir -p $DEPLOYPATH
     - test -f $DEPLOYPATH/.env || (echo 'Production .env is missing; create it before deploying.' && exit 1)
     - git archive HEAD | tar -x -C $DEPLOYPATH
