@@ -241,7 +241,7 @@ export function SiteHeader({
             data-site-header
             data-edge="frame"
             data-menu-open={isMenuOpen}
-            className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex h-[max(56px,6.9vh)] items-center justify-between px-[max(12px,1.2vw)] ${transitionReady}`}
+            className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex h-[max(56px,6.9svh)] items-center justify-between pr-[max(12px,1.2vw,env(safe-area-inset-right,0px))] pl-[max(12px,1.2vw,env(safe-area-inset-left,0px))] ${transitionReady}`}
         >
             <div
                 data-header-edge-color
@@ -251,7 +251,7 @@ export function SiteHeader({
             </div>
 
             <div
-                className={`pointer-events-auto absolute top-[calc(max(6px,1vh)+(max(64px,7.5vh)-max(6px,1vh)-44px)/2)] left-1/2 z-50 flex h-11 -translate-x-1/2 items-center gap-4 transition-colors duration-500 motion-reduce:transition-none max-[767px]:top-[calc(max(64px,7.5vh)-52px+4px)] max-[767px]:gap-0 ${clusterColor} ${transitionReady}`}
+                className={`pointer-events-auto absolute top-[calc(max(6px,1svh)+(max(64px,7.5svh)-max(6px,1svh)-44px)/2)] left-1/2 z-50 flex h-11 -translate-x-1/2 items-center gap-4 transition-colors duration-500 motion-reduce:transition-none max-[767px]:top-[calc(max(64px,7.5svh)-52px+4px)] max-[767px]:gap-0 ${clusterColor} ${transitionReady}`}
             >
                 <button
                     type="button"
