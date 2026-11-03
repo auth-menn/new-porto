@@ -1,0 +1,12 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/ilucnamx/public_html/auth-men-v2
+    - /bin/mkdir -p $DEPLOYPATH
+    - test -f $DEPLOYPATH/.env || (echo 'Production .env is missing; create it before deploying.' && exit 1)
+    - git archive HEAD | tar -x -C $DEPLOYPATH
+    - /bin/mkdir -p $DEPLOYPATH/storage/app/public $DEPLOYPATH/storage/framework/cache/data $DEPLOYPATH/storage/framework/sessions $DEPLOYPATH/storage/framework/views $DEPLOYPATH/storage/logs
+    - cd $DEPLOYPATH && /opt/cpanel/ea-php83/root/usr/bin/php /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+    - cd $DEPLOYPATH && npm ci --no-audit --no-fund
+    - cd $DEPLOYPATH && npm run build
+    - cd $DEPLOYPATH && /opt/cpanel/ea-php83/root/usr/bin/php artisan optimize
