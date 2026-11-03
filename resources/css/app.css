@@ -1319,7 +1319,7 @@ html:not(.js) .about-roll {
     --project-card-height: calc(100cqw / var(--project-card-aspect, 1.6));
     --project-step: calc(var(--project-card-height) * 0.55);
     --project-stage-height: calc(var(--project-card-height) + 6 * var(--peek));
-    --site-header-h: max(56px, 6.9vh);
+    --site-header-h: max(56px, 6.9svh);
     position: absolute;
     z-index: 10;
     container-type: inline-size;
@@ -4497,7 +4497,7 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
     }
 }
 
-@media (orientation: landscape) and (max-width: 767px) {
+@media (orientation: landscape) and (max-height: 600px) {
     #fullscreen-menu .fullscreen-menu-gallery {
         display: block;
     }
@@ -4916,5 +4916,69 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
     .contact-light-stage .contact-message-trigger {
         font-size: 5em;
         padding: 0.34em 1em;
+    }
+}
+
+:root {
+    --header-h: max(56px, 6.9svh);
+    --header-clear: calc(var(--header-h) + 10px);
+}
+
+
+@media (orientation: portrait), (max-height: 700px) {
+    .project-showcase-title {
+        top: max(6%, var(--header-clear));
+    }
+    .project-showcase-hint {
+        top: calc(max(6%, var(--header-clear)) + 1.6rem);
+    }
+    .journey-section[data-horizontal='true'] .journey-section-heading {
+        top: max(7%, var(--header-clear));
+    }
+}
+
+
+@media (orientation: portrait) {
+    #fullscreen-menu {
+        --menu-row-h: clamp(72px, 10svh, 132px);
+    }
+    #fullscreen-menu .fullscreen-menu-content {
+        padding-bottom: calc(2 * var(--menu-row-h) + 18px + 48px);
+    }
+    #fullscreen-menu .fullscreen-menu-nav {
+        min-height: 0;
+    }
+    #fullscreen-menu .fullscreen-menu-nav > ul {
+        font-size: clamp(24px, min(7.8vw, 5.4svh), 68px);
+    }
+    #fullscreen-menu .menu-photo-column {
+        height: var(--menu-row-h);
+        bottom: 24px;
+    }
+    #fullscreen-menu .menu-photo-column:nth-child(2) {
+        bottom: calc(var(--menu-row-h) + 18px + 24px);
+    }
+}
+
+@media (orientation: portrait) and (max-height: 640px) {
+    #fullscreen-menu .fullscreen-menu-gallery {
+        display: none;
+    }
+    #fullscreen-menu .fullscreen-menu-content {
+        padding-bottom: 32px;
+    }
+}
+
+
+@media (orientation: portrait) {
+    .contact-light-stage {
+        font-size: clamp(2.5px, min(0.85vw, 0.5dvh), 6px);
+        font-size: round(down, clamp(2.5px, min(0.85vw, 0.5dvh), 6px), 0.5px);
+    }
+}
+
+@media (orientation: portrait) and (max-height: 720px) {
+    .journey-entry-documentation {
+        display: none;
     }
 }
