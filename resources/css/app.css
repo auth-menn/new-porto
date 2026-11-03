@@ -2628,11 +2628,11 @@ html:not(.js) .project-photo {
 		var(--lgc2) 51em,
 		transparent 53em
 	);
-	/* filter: blur(max(1em, 3px));
+	filter: blur(max(1em, 3px));
 	position: absolute;
 	translate: 18.2em 10.35em;
 	clip-path: polygon(0 0, 100% 0, 100% 78%, 0 78%);
-	transform: scaleX(-1) rotate(-2deg); */
+	transform: scaleX(-1) rotate(-2deg);
 }
 .contact-light-stage .mid-ring.small {
 	translate: 0.04em -8em;
