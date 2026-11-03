@@ -621,7 +621,7 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                         scrollTrigger: {
                             trigger: section,
                             start: 'top bottom',
-                            end: 'top top',
+                            end: 'top 12%',
                             scrub: isMobile
                                 ? PROJECT_CONFIG.animation.mobileScrub
                                 : PROJECT_CONFIG.animation.desktopScrub,
