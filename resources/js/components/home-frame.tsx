@@ -1312,7 +1312,7 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
                         >
                             <section
                                 aria-label="Firman Maulana Syabani, IT Developer"
-                                className={`absolute inset-0 z-[1] overflow-hidden rounded-[clamp(16px,2.5vw,48px)] bg-[var(--panel-bg)] text-[var(--panel-fg)] transition-colors duration-500 ease-in-out [clip-path:inset(max(64px,7.5vh)_4.2%_5.3%_round_clamp(16px,2.5vw,48px))] motion-reduce:transition-none max-[767px]:[clip-path:inset(64px_3%_44px_round_16px)] ${transitionReady}`}
+                                className={`absolute inset-0 z-[1] overflow-hidden rounded-[clamp(16px,2.5vw,48px)] bg-[var(--panel-bg)] text-[var(--panel-fg)] transition-colors duration-500 ease-in-out [clip-path:inset(max(64px,7.5svh)_4.2%_5.3%_round_clamp(16px,2.5vw,48px))] motion-reduce:transition-none max-[767px]:[clip-path:inset(64px_3%_44px_round_16px)] ${transitionReady}`}
                                 style={
                                     panelClip
                                         ? { clipPath: panelClip }
