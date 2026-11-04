@@ -37,7 +37,7 @@ export const ABOUT_CONFIG = {
         desktopLeft: '46%',
         desktopRight: '4.5%',
         desktopTop: '17%',
-        desktopHeight: 'max(68vh, 440px)',
+        desktopHeight: 'max(68svh, 440px)',
         mobileLeft: '4%',
         mobileRight: '4%',
         mobileTop: '46%',
