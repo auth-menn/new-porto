@@ -44,6 +44,7 @@ Route::get('/', function (): InertiaResponse {
                 'startYear' => $journey->start_year,
                 'endYear' => $journey->end_year,
                 'activities' => $journey->activities,
+                'translations' => $journey->translations ?? [],
                 'documentationUrl' => $journey->documentation_path
                     ? Storage::disk('public')->url($journey->documentation_path)
                     : null,

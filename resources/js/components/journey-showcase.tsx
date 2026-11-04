@@ -36,7 +36,9 @@ export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
     const { language, t } = useLang();
     const journeyItems: JourneyCardItem[] = journeys.map((journey, index) => {
         const translation =
-            language === 'id' ? undefined : journey.translations[language];
+            language === 'id'
+                ? undefined
+                : journey.translations?.[language];
 
         return {
             id: journey.id,
