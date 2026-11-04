@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Link } from '@inertiajs/react';
 import { useLang } from '@/lib/i18n';
 import type { Project } from '@/types';
 
@@ -47,6 +46,7 @@ function ProjectCard({
         <article
             ref={(element) => setCardRef(index, element)}
             data-project-index={index}
+            aria-label={title}
             aria-hidden={!visible}
             inert={!active || !visible}
             className="project-card group"
@@ -88,13 +88,6 @@ function ProjectCard({
                 </div>
             </div>
 
-            <Link
-                href="/#proyek"
-                aria-label={title}
-                data-title={title}
-                tabIndex={active && visible ? 0 : -1}
-                className="project-card-link after:absolute after:inset-0 after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--panel-fg)]"
-            />
         </article>
     );
 }
