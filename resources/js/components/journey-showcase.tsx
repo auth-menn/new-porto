@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useLang } from '@/lib/i18n';
+import { formatNumber, useLang } from '@/lib/i18n';
 import { JOURNEY_CONFIG } from '@/data/journey-config';
 import type { Journey } from '@/types';
 
@@ -33,12 +33,12 @@ const journeyFragments = Array.from(
 
 export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
     const sectionRef = useRef<HTMLElement>(null);
-    const { t } = useLang();
+    const { language, t } = useLang();
     const journeyItems: JourneyCardItem[] = journeys.map((journey, index) => ({
         id: journey.id,
-        number: String(index + 1).padStart(2, '0'),
+        number: formatNumber(index + 1, language, 2),
         category: journey.category,
-        period: `${journey.startYear} — ${journey.endYear ?? t('journeyCurrent')}`,
+        period: `${formatNumber(journey.startYear, language)} — ${journey.endYear ? formatNumber(journey.endYear, language) : t('journeyCurrent')}`,
         organization: journey.organization,
         role: journey.title,
         activities: journey.activities,

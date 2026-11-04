@@ -1,3 +1,5 @@
+import type { Language } from '@/lib/i18n';
+
 export type AboutCommand =
     | 'fastfetch'
     | 'help'
@@ -93,7 +95,7 @@ export function tokenizeTerminalLine(
             return [{ t: text, c: 'arch' }];
         }
         const label = text.match(
-            /^(Name|Role|Stack|Location|Contact):(\s*)(.*)$/,
+            /^(Name|Role|Stack|Location|Contact|名前|役割|技術|所在地|連絡先|姓名|角色|技术|位置|联系|Имя|Роль|Стек|Место|Контакт|الاسم|الدور|التقنيات|الموقع|التواصل):(\s*)(.*)$/,
         );
         if (label) {
             return [
@@ -146,7 +148,7 @@ export function tokenizeTerminalLine(
 
 export const ABOUT_CONTENT: Record<
     Exclude<AboutCommand, 'fastfetch' | 'help' | 'clear'>,
-    { id: string[]; en: string[] }
+    Record<Language, string[]>
 > = {
     about: {
         id: [
@@ -158,6 +160,26 @@ export const ABOUT_CONTENT: Record<
             'I develop web applications that support business operations and improve workflows.',
             'My interests span full-stack development, practical digital solutions, and independent security research.',
             'I use Laravel, React, and modern web technologies while continuing to grow in software engineering and cybersecurity.',
+        ],
+        ja: [
+            '業務を支援し、作業の流れを改善するWebアプリケーションを開発しています。',
+            'フルスタック開発、クライアント向けのデジタルソリューション、独立したセキュリティ調査に取り組んでいます。',
+            'Laravel、React、最新のWeb技術を活用し、ソフトウェア開発とサイバーセキュリティの知識を深めています。',
+        ],
+        zh: [
+            '我开发 Web 应用，以支持业务运营并改进工作流程。',
+            '我的工作方向包括全栈开发、面向客户的数字化解决方案以及独立安全研究。',
+            '我使用 Laravel、React 和现代 Web 技术，并持续提升软件开发与网络安全能力。',
+        ],
+        ru: [
+            'Я разрабатываю веб-приложения для поддержки рабочих процессов и повышения эффективности операций.',
+            'Мои направления — full-stack-разработка, цифровые решения для клиентов и независимые исследования в области безопасности.',
+            'Я использую Laravel, React и современные веб-технологии, продолжая развиваться в разработке ПО и кибербезопасности.',
+        ],
+        ar: [
+            'أطوّر تطبيقات الويب لدعم العمليات وتحسين سير العمل.',
+            'تشمل اهتماماتي تطوير التطبيقات المتكاملة، وتقديم الحلول الرقمية للعملاء، والبحث المستقل في مجال الأمن السيبراني.',
+            'أستخدم Laravel وReact وتقنيات الويب الحديثة، وأواصل تطوير خبرتي في هندسة البرمجيات والأمن السيبراني.',
         ],
     },
     skills: {
@@ -179,20 +201,36 @@ export const ABOUT_CONTENT: Record<
             'MySQL',
             'Git',
         ],
+        ja: ['Laravel', 'React', 'TypeScript', 'Inertia', 'Tailwind CSS', 'MySQL', 'Git'],
+        zh: ['Laravel', 'React', 'TypeScript', 'Inertia', 'Tailwind CSS', 'MySQL', 'Git'],
+        ru: ['Laravel', 'React', 'TypeScript', 'Inertia', 'Tailwind CSS', 'MySQL', 'Git'],
+        ar: ['Laravel', 'React', 'TypeScript', 'Inertia', 'Tailwind CSS', 'MySQL', 'Git'],
     },
     experience: {
         id: ['[Tahun] - [Tahun]  [Posisi] - [Perusahaan]'],
         en: ['[Year] - [Year]  [Position] - [Company]'],
+        ja: ['[開始年] - [終了年]  [職種] - [会社名]'],
+        zh: ['[开始年份] - [结束年份]  [职位] - [公司名称]'],
+        ru: ['[Год начала] - [Год окончания]  [Должность] - [Компания]'],
+        ar: ['[سنة البداية] - [سنة النهاية]  [المسمى الوظيفي] - [الشركة]'],
     },
     education: {
         id: ['[Tahun] - [Tahun]  [Program] - [Institusi]'],
         en: ['[Year] - [Year]  [Program] - [Institution]'],
+        ja: ['[開始年] - [終了年]  [専攻] - [教育機関]'],
+        zh: ['[开始年份] - [结束年份]  [专业] - [院校]'],
+        ru: ['[Год начала] - [Год окончания]  [Программа] - [Учебное заведение]'],
+        ar: ['[سنة البداية] - [سنة النهاية]  [البرنامج] - [المؤسسة التعليمية]'],
     },
     projects: {
         id: ['Daftar proyek tersedia pada bagian proyek di halaman ini.'],
         en: [
             'Project details are available in the projects section on this page.',
         ],
+        ja: ['プロジェクトの詳細は、このページのプロジェクト欄をご覧ください。'],
+        zh: ['项目详情请参阅本页面的项目部分。'],
+        ru: ['Описание проектов доступно в разделе проектов на этой странице.'],
+        ar: ['تجد تفاصيل المشاريع في قسم المشاريع على هذه الصفحة.'],
     },
     contact: {
         id: [
@@ -202,6 +240,26 @@ export const ABOUT_CONTENT: Record<
         ],
         en: [
             'Email: auth.menn@gmail.com',
+            'GitHub: https://github.com/auth-menn',
+            'LinkedIn: https://www.linkedin.com/in/firman-maulana-syabani/',
+        ],
+        ja: [
+            'メール: auth.menn@gmail.com',
+            'GitHub: https://github.com/auth-menn',
+            'LinkedIn: https://www.linkedin.com/in/firman-maulana-syabani/',
+        ],
+        zh: [
+            '邮箱: auth.menn@gmail.com',
+            'GitHub: https://github.com/auth-menn',
+            'LinkedIn: https://www.linkedin.com/in/firman-maulana-syabani/',
+        ],
+        ru: [
+            'Эл. почта: auth.menn@gmail.com',
+            'GitHub: https://github.com/auth-menn',
+            'LinkedIn: https://www.linkedin.com/in/firman-maulana-syabani/',
+        ],
+        ar: [
+            'البريد الإلكتروني: auth.menn@gmail.com',
             'GitHub: https://github.com/auth-menn',
             'LinkedIn: https://www.linkedin.com/in/firman-maulana-syabani/',
         ],

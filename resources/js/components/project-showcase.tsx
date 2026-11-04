@@ -13,7 +13,7 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_CONFIG } from '@/data/about-config';
 import { PROJECT_CONFIG } from '@/data/project-config';
-import { useLang } from '@/lib/i18n';
+import { formatNumber, useLang, type Language } from '@/lib/i18n';
 import type { Project } from '@/types';
 
 gsap.registerPlugin(useGSAP, ScrollToPlugin, ScrollTrigger);
@@ -26,11 +26,13 @@ function ProjectScreen({
     index,
     active,
     device,
+    language,
 }: {
     project: Project;
     index: number;
     active: boolean;
     device: Device;
+    language: Language;
 }) {
     const [imageMissing, setImageMissing] = useState(false);
     const title = project.title;
@@ -38,7 +40,7 @@ function ProjectScreen({
     return (
         <article
             className="project-screen-card"
-            aria-label={`${String(index + 1).padStart(2, '0')}: ${title}`}
+            aria-label={`${formatNumber(index + 1, language, 2)}: ${title}`}
             aria-hidden={!active}
             inert={!active}
         >
@@ -54,7 +56,7 @@ function ProjectScreen({
                 />
             ) : (
                 <div className="project-screen-placeholder" aria-hidden="true">
-                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <span>{formatNumber(index + 1, language, 2)}</span>
                     <strong>{title}</strong>
                 </div>
             )}
@@ -63,7 +65,7 @@ function ProjectScreen({
 }
 
 export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
-    const { t } = useLang();
+    const { language, t } = useLang();
     const sectionRef = useRef<HTMLElement>(null);
     const photoRef = useRef<HTMLDivElement>(null);
     const photoFlyRef = useRef<HTMLDivElement>(null);
@@ -829,8 +831,8 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
             if (!previous || !current) return;
 
             gsap.killTweensOf([previous, current]);
-            previous.textContent = `${String(previousCounterRef.current + 1).padStart(2, '0')} / ${String(projects.length).padStart(2, '0')}`;
-            current.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(projects.length).padStart(2, '0')}`;
+            previous.textContent = `${formatNumber(previousCounterRef.current + 1, language, 2)} / ${formatNumber(projects.length, language, 2)}`;
+            current.textContent = `${formatNumber(activeIndex + 1, language, 2)} / ${formatNumber(projects.length, language, 2)}`;
             gsap.timeline({ defaults: { ease: 'power2.out' } })
                 .fromTo(
                     previous,
@@ -864,7 +866,7 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
         },
         {
             scope: sectionRef,
-            dependencies: [activeIndex],
+            dependencies: [activeIndex, language],
             revertOnUpdate: false,
         },
     );
@@ -951,6 +953,7 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                             index={projectIndex}
                             active={projectIndex === activeIndex}
                             device={device}
+                            language={language}
                         />
                     ))}
                 </div>
@@ -1085,14 +1088,14 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                                 className="project-showcase-counter-previous"
                                 aria-hidden="true"
                             >
-                                01 / {String(projects.length).padStart(2, '0')}
+                                {formatNumber(1, language, 2)} / {formatNumber(projects.length, language, 2)}
                             </span>
                             <span
                                 ref={counterCurrentRef}
                                 aria-live="polite"
                                 className="project-showcase-counter-current"
                             >
-                                01 / {String(projects.length).padStart(2, '0')}
+                                {formatNumber(1, language, 2)} / {formatNumber(projects.length, language, 2)}
                             </span>
                         </p>
                     </div>

@@ -150,14 +150,14 @@ export function ContactShowcase() {
                             id="contact-notice-message"
                             className="contact-notice-message"
                         >
-                            Mohon maaf, fitur pesan masih dalam pengembangan.
+                            {t('contactNoticeMessage')}
                         </p>
                         <button
                             className="contact-form-submit"
                             type="button"
                             onClick={closeContactDialog}
                         >
-                            Tutup
+                            {t('close')}
                         </button>
                     </div>
                 )}

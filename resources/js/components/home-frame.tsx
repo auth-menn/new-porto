@@ -1305,7 +1305,7 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
                             className={`home-frame relative isolate h-dvh w-full overflow-hidden overflow-x-clip bg-[var(--frame-bg)] text-[var(--frame-fg)] transition-colors duration-500 ease-in-out motion-reduce:transition-none ${transitionReady}`}
                         >
                             <section
-                                aria-label="Firman Maulana Syabani, IT Developer"
+                                aria-label={`Firman Maulana Syabani, ${t('developerRole')}`}
                                 className={`absolute inset-0 z-[1] overflow-hidden rounded-[clamp(16px,2.5vw,48px)] bg-[var(--panel-bg)] text-[var(--panel-fg)] transition-colors duration-500 ease-in-out [clip-path:inset(max(64px,7.5svh)_4.2%_5.3%_round_clamp(16px,2.5vw,48px))] motion-reduce:transition-none max-[767px]:[clip-path:inset(64px_3%_44px_round_16px)] ${transitionReady}`}
                                 style={
                                     panelClip
@@ -1345,22 +1345,14 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
                                                 <span className="home-name-outline text-transparent">
                                                     SYABANI.
                                                 </span>
-                                                <span
-                                                    aria-hidden="true"
-                                                    className="home-role-it"
-                                                >
-                                                    IT
-                                                </span>
                                             </span>
                                         </h1>
 
                                         <p
-                                            aria-label="IT DEVELOPER"
+                                            aria-label={t('developerRole')}
                                             className="home-role m-0 p-0 text-left font-michroma uppercase"
                                         >
-                                            <span aria-hidden="true">
-                                                DEVELOPER
-                                            </span>
+                                            {t('developerRole')}
                                         </p>
                                     </div>
                                 </div>

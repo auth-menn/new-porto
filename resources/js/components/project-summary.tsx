@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { useLang } from '@/lib/i18n';
+import { formatNumber, useLang } from '@/lib/i18n';
 import type { Project } from '@/types';
 
 type ProjectSummaryProps = {
@@ -95,7 +95,7 @@ export function ProjectSummary({
     onEntranceComplete,
     showHeader = true,
 }: ProjectSummaryProps) {
-    const { t } = useLang();
+    const { language, t } = useLang();
     const projectCount = Math.max(projects.length, 1);
     const sectionRef = useRef<HTMLElement>(null);
     const viewportRef = useRef<HTMLDivElement>(null);
@@ -308,7 +308,7 @@ export function ProjectSummary({
                     <div className="project-summary-label font-michroma">
                         <span>{t('projects')}</span>
                         <span aria-live="off">
-                            {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
+                            {formatNumber(activeIndex + 1, language, 2)} / {formatNumber(projects.length, language, 2)}
                         </span>
                     </div>
                 )}

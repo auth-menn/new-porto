@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
+import type { Language } from '@/lib/i18n';
 
 type SiteLogoProps = {
-    language: 'id' | 'en';
+    language: Language;
 };
 
 export function SiteLogo({ language }: SiteLogoProps) {
@@ -14,7 +15,15 @@ export function SiteLogo({ language }: SiteLogoProps) {
             aria-label={
                 language === 'id'
                     ? 'Firman Maulana Syabani, beranda'
-                    : 'Firman Maulana Syabani, home'
+                    : language === 'ja'
+                      ? 'Firman Maulana Syabani、ホーム'
+                      : language === 'zh'
+                        ? 'Firman Maulana Syabani，首页'
+                        : language === 'ru'
+                          ? 'Firman Maulana Syabani, главная'
+                          : language === 'ar'
+                            ? 'فيرمان مولانا سياباني، الرئيسية'
+                            : 'Firman Maulana Syabani, home'
             }
             className="flex h-full min-h-11 min-w-11 items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-current"
         >

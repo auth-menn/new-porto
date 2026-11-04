@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/react';
 import { HomeFrame } from '@/components/home-frame';
 import { SiteHeader } from '@/components/site-header';
 import { useAppearance } from '@/hooks/use-appearance';
+import { useLang } from '@/lib/i18n';
 import type { Journey, MenuImages, Project } from '@/types';
 
 type HomeSeo = {
@@ -24,6 +25,7 @@ export default function Home({
     seo: HomeSeo;
 }) {
     const { resolvedAppearance, updateAppearance } = useAppearance();
+    const { t } = useLang();
     const [themeTransitionsReady, setThemeTransitionsReady] = useState(false);
     const isDark = resolvedAppearance === 'dark';
 
@@ -37,14 +39,14 @@ export default function Home({
 
     return (
         <>
-            <Head title={seo.title}>
-                <meta head-key="description" name="description" content={seo.description} />
+            <Head title={t('seoTitle')}>
+                <meta head-key="description" name="description" content={t('seoDescription')} />
                 <link head-key="canonical" rel="canonical" href={seo.canonicalUrl} />
-                <meta head-key="og:title" property="og:title" content={seo.title} />
+                <meta head-key="og:title" property="og:title" content={t('seoTitle')} />
                 <meta
                     head-key="og:description"
                     property="og:description"
-                    content={seo.description}
+                    content={t('seoDescription')}
                 />
                 <meta head-key="og:type" property="og:type" content="website" />
                 <meta head-key="og:url" property="og:url" content={seo.canonicalUrl} />
@@ -52,20 +54,20 @@ export default function Home({
                 <meta
                     head-key="og:image:alt"
                     property="og:image:alt"
-                    content="Logo portofolio Firman Maulana Syabani"
+                    content={t('seoImageAlt')}
                 />
                 <meta head-key="twitter:card" name="twitter:card" content="summary_large_image" />
-                <meta head-key="twitter:title" name="twitter:title" content={seo.title} />
+                <meta head-key="twitter:title" name="twitter:title" content={t('seoTitle')} />
                 <meta
                     head-key="twitter:description"
                     name="twitter:description"
-                    content={seo.description}
+                    content={t('seoDescription')}
                 />
                 <meta head-key="twitter:image" name="twitter:image" content={seo.socialImageUrl} />
                 <meta
                     head-key="twitter:image:alt"
                     name="twitter:image:alt"
-                    content="Logo portofolio Firman Maulana Syabani"
+                    content={t('seoImageAlt')}
                 />
             </Head>
             <SiteHeader

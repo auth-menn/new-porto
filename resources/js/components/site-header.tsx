@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown, Moon, Sun } from 'lucide-react';
 import { FullscreenMenu } from '@/components/fullscreen-menu';
 import { SiteLogo } from '@/components/site-logo';
-import { FlagGB, FlagID } from '@/components/flags';
-import { useLang } from '@/lib/i18n';
+import { FlagAR, FlagCN, FlagGB, FlagID, FlagJP, FlagRU } from '@/components/flags';
+import { languages, useLang, type Language } from '@/lib/i18n';
 import type { MenuImages } from '@/types';
 
 type SiteHeaderProps = {
@@ -27,7 +27,7 @@ function LanguageDropdown({
     const triggerRef = useRef<HTMLButtonElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
     const optionRefs = useRef<Array<HTMLDivElement | null>>([]);
-    const selectedIndex = language === 'id' ? 0 : 1;
+    const selectedIndex = languages.indexOf(language);
     const panelColors = isMenuOpen
         ? 'border-[var(--menu-fg)] bg-[var(--menu-bg)] text-[var(--menu-fg)]'
         : 'border-[var(--panel-fg)] bg-[var(--panel-bg)] text-[var(--panel-fg)]';
@@ -52,7 +52,7 @@ function LanguageDropdown({
         triggerRef.current?.focus();
     };
 
-    const selectLanguage = (nextLanguage: 'id' | 'en') => {
+    const selectLanguage = (nextLanguage: Language) => {
         setLanguage(nextLanguage);
         closeAndFocusTrigger();
     };
@@ -112,19 +112,19 @@ function LanguageDropdown({
     ) => {
         if (event.key === 'ArrowDown') {
             event.preventDefault();
-            focusOption((index + 1) % 2);
+            focusOption((index + 1) % languages.length);
         } else if (event.key === 'ArrowUp') {
             event.preventDefault();
-            focusOption((index + 1) % 2);
+            focusOption((index - 1 + languages.length) % languages.length);
         } else if (event.key === 'Home') {
             event.preventDefault();
             focusOption(0);
         } else if (event.key === 'End') {
             event.preventDefault();
-            focusOption(1);
+            focusOption(languages.length - 1);
         } else if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            selectLanguage(index === 0 ? 'id' : 'en');
+            selectLanguage(languages[index]);
         } else if (event.key === 'Escape') {
             event.preventDefault();
             closeAndFocusTrigger();
@@ -147,11 +147,10 @@ function LanguageDropdown({
                 onKeyDown={handleTriggerKeyDown}
                 className={`inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-[10px] px-1 font-michroma text-[10px] uppercase focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current max-[399px]:w-11 max-[399px]:gap-0 min-[400px]:min-w-[72px] ${triggerHover} ${transitionReady}`}
             >
-                {language === 'id' ? (
-                    <FlagID className="shrink-0 rounded-[2px]" />
-                ) : (
-                    <FlagGB className="shrink-0 rounded-[2px]" />
-                )}
+                <LanguageFlag
+                    language={language}
+                    className="shrink-0 rounded-[2px]"
+                />
                 <span className="max-[399px]:hidden">
                     {language.toUpperCase()}
                 </span>
@@ -169,10 +168,8 @@ function LanguageDropdown({
                 aria-hidden={!isOpen}
                 className={`absolute top-full right-0 z-[60] mt-1 min-w-[160px] rounded-xl border p-1 transition-[opacity,transform] duration-150 motion-reduce:transition-none ${panelColors} ${isOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-1 opacity-0'}`}
             >
-                {(['id', 'en'] as const).map((optionLanguage, index) => {
+                {languages.map((optionLanguage, index) => {
                     const isSelected = language === optionLanguage;
-                    const OptionFlag =
-                        optionLanguage === 'id' ? FlagID : FlagGB;
 
                     return (
                         <div
@@ -191,12 +188,13 @@ function LanguageDropdown({
                             }
                             className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-2 text-sm ${isSelected ? 'opacity-100' : 'opacity-70 hover:opacity-100 focus-visible:opacity-100'} ${optionHover} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-current`}
                         >
-                            <OptionFlag className="shrink-0 rounded-[2px]" />
+                            <LanguageFlag
+                                language={optionLanguage}
+                                className="shrink-0 rounded-[2px]"
+                            />
                             <span className="flex-1 whitespace-nowrap">
                                 {t(
-                                    optionLanguage === 'id'
-                                        ? 'indonesian'
-                                        : 'english',
+                                    languageNameKey[optionLanguage],
                                 )}
                             </span>
                             {isSelected && (
@@ -211,6 +209,40 @@ function LanguageDropdown({
             </div>
         </div>
     );
+}
+
+const languageNameKey: Record<Language, 'indonesian' | 'english' | 'japanese' | 'chinese' | 'russian' | 'arabic'> = {
+    id: 'indonesian',
+    en: 'english',
+    ja: 'japanese',
+    zh: 'chinese',
+    ru: 'russian',
+    ar: 'arabic',
+};
+
+function LanguageFlag({
+    language,
+    className,
+}: {
+    language: Language;
+    className?: string;
+}) {
+    const flagProps = { className };
+
+    switch (language) {
+        case 'id':
+            return <FlagID {...flagProps} />;
+        case 'en':
+            return <FlagGB {...flagProps} />;
+        case 'ja':
+            return <FlagJP {...flagProps} />;
+        case 'zh':
+            return <FlagCN {...flagProps} />;
+        case 'ru':
+            return <FlagRU {...flagProps} />;
+        case 'ar':
+            return <FlagAR {...flagProps} />;
+    }
 }
 
 export function SiteHeader({

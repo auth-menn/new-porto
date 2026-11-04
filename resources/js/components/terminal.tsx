@@ -16,7 +16,12 @@ import {
     type TerminalOutputKind,
 } from '@/data/about';
 import { useAppearance } from '@/hooks/use-appearance';
-import { useLang } from '@/lib/i18n';
+import {
+    formatNumber,
+    languageLocales,
+    useLang,
+    type Language,
+} from '@/lib/i18n';
 import type { Journey, Project } from '@/types';
 
 type OutputKey =
@@ -171,14 +176,44 @@ function resolveCommand(rawCommand: string): {
 
 function getOutput(
     entry: TerminalEntry,
-    language: 'id' | 'en',
+    language: Language,
     projects: Project[],
     journeys: Journey[],
 ): string {
     const { outputKey, command } = entry;
-    if (outputKey === 'unknown') return `bash: ${command}: command not found`;
+    if (outputKey === 'unknown') {
+        const unknownCommand: Record<Language, string> = {
+            id: `bash: perintah tidak ditemukan: ${command}`,
+            en: `bash: command not found: ${command}`,
+            ja: `bash: コマンドが見つかりません: ${command}`,
+            zh: `bash: 未找到命令：${command}`,
+            ru: `bash: команда не найдена: ${command}`,
+            ar: `bash: الأمر غير موجود: ${command}`,
+        };
+
+        return unknownCommand[language];
+    }
     if (outputKey === 'fastfetch') {
-        return `visitor@archlinux\n----------------\nName:     Firman Maulana Syabani\nRole:     IT Developer\nStack:    ${TECH_STACK.map((item) => item.name).join(', ')}\nLocation: Gresik, Indonesia\nContact:  auth.menn@gmail.com`;
+        const labels: Record<Language, [string, string, string, string, string]> = {
+            id: ['Name', 'Role', 'Stack', 'Location', 'Contact'],
+            en: ['Name', 'Role', 'Stack', 'Location', 'Contact'],
+            ja: ['名前', '役割', '技術', '所在地', '連絡先'],
+            zh: ['姓名', '角色', '技术', '位置', '联系'],
+            ru: ['Имя', 'Роль', 'Стек', 'Место', 'Контакт'],
+            ar: ['الاسم', 'الدور', 'التقنيات', 'الموقع', 'التواصل'],
+        };
+        const [name, role, stack, location, contact] = labels[language];
+
+        const locations: Record<Language, string> = {
+            id: 'Gresik, Indonesia',
+            en: 'Gresik, Indonesia',
+            ja: 'Gresik, インドネシア',
+            zh: 'Gresik，印度尼西亚',
+            ru: 'Gresik, Индонезия',
+            ar: 'Gresik، إندونيسيا',
+        };
+
+        return `visitor@archlinux\n----------------\n${name}:     Firman Maulana Syabani\n${role}:     IT Developer\n${stack}:    ${TECH_STACK.map((item) => item.name).join(', ')}\n${location}: ${locations[language]}\n${contact}:  auth.menn@gmail.com`;
     }
 
     if (outputKey === 'ls')
@@ -188,14 +223,19 @@ function getOutput(
             ? projects
                   .map((project, index) => {
                       const link = project.link ? `\n   ${project.link}` : '';
-                      return `${String(index + 1).padStart(2, '0')}  ${project.title}${link}`;
+                      return `${formatNumber(index + 1, language, 2)}  ${project.title}${link}`;
                   })
                   .join('\n')
-            : language === 'id'
-              ? 'Belum ada proyek di CMS.'
-              : 'No projects have been added in the CMS.';
+            : ({
+                  id: 'Belum ada proyek di CMS.',
+                  en: 'No projects have been added in the CMS.',
+                  ja: 'CMSにプロジェクトはまだ登録されていません。',
+                  zh: 'CMS 中尚未添加项目。',
+                  ru: 'В CMS пока нет проектов.',
+                  ar: 'لا توجد مشاريع مضافة في نظام إدارة المحتوى بعد.',
+              } satisfies Record<Language, string>)[language];
     if (outputKey === 'skills')
-        return TECH_STACK.map((item, index) => `${String(index + 1).padStart(2, '0')}  ${item.name}`).join('\n');
+        return TECH_STACK.map((item, index) => `${formatNumber(index + 1, language, 2)}  ${item.name}`).join('\n');
     if (outputKey === 'education' || outputKey === 'experience') {
         const matchingJourneys = journeys.filter((journey) =>
             outputKey === 'education'
@@ -207,34 +247,59 @@ function getOutput(
         return matchingJourneys.length
             ? matchingJourneys
                   .map((journey) => {
-                      const period = `${journey.startYear}–${journey.endYear ?? (language === 'id' ? 'sekarang' : 'present')}`;
+                      const present: Record<Language, string> = {
+                          id: 'sekarang',
+                          en: 'present',
+                          ja: '現在',
+                          zh: '至今',
+                          ru: 'по настоящее время',
+                          ar: 'حتى الآن',
+                      };
+                      const startYear = formatNumber(journey.startYear, language);
+                      const endYear = journey.endYear
+                          ? formatNumber(journey.endYear, language)
+                          : present[language];
+                      const period = `${startYear}–${endYear}`;
                       const activities = journey.activities.map((activity) => `   - ${activity}`).join('\n');
                       return `${period}  ${journey.organization}\n   ${journey.title}${activities ? `\n${activities}` : ''}`;
                   })
                   .join('\n\n')
-            : language === 'id'
-              ? outputKey === 'education'
-                  ? 'Belum ada data pendidikan di CMS.'
-                  : 'Belum ada data pengalaman di CMS.'
-              : outputKey === 'education'
-                ? 'No education has been added in the CMS.'
-                : 'No experience has been added in the CMS.';
+            : ({
+                  id: outputKey === 'education' ? 'Belum ada data pendidikan di CMS.' : 'Belum ada data pengalaman di CMS.',
+                  en: outputKey === 'education' ? 'No education has been added in the CMS.' : 'No experience has been added in the CMS.',
+                  ja: outputKey === 'education' ? 'CMSに学歴情報はまだ登録されていません。' : 'CMSに職務経験はまだ登録されていません。',
+                  zh: outputKey === 'education' ? 'CMS 中尚未添加教育经历。' : 'CMS 中尚未添加工作经历。',
+                  ru: outputKey === 'education' ? 'В CMS пока не добавлены сведения об образовании.' : 'В CMS пока не добавлен опыт работы.',
+                  ar: outputKey === 'education' ? 'لم تتم إضافة بيانات التعليم في نظام إدارة المحتوى بعد.' : 'لم تتم إضافة بيانات الخبرة العملية في نظام إدارة المحتوى بعد.',
+              } satisfies Record<Language, string>)[language];
     }
     if (outputKey === 'whoami') return 'visitor';
     if (outputKey === 'pwd') return '/home/visitor';
     if (outputKey === 'uname')
         return 'Linux archlinux 6.12.1-arch1-1 #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux';
     if (outputKey === 'date')
-        return new Intl.DateTimeFormat(language === 'id' ? 'id-ID' : 'en-US', {
+        return new Intl.DateTimeFormat(languageLocales[language], {
             dateStyle: 'full',
         }).format(new Date());
     if (outputKey === 'echo') return command.slice(5);
     if (outputKey === 'sudo')
-        return 'visitor is not in the sudoers file. This incident will be reported.';
+        return ({
+            id: 'visitor tidak memiliki izin sudo. Aktivitas ini akan dicatat.',
+            en: 'visitor is not in the sudoers file. This incident will be reported.',
+            ja: 'visitorにはsudo権限がありません。この操作は記録されます。',
+            zh: 'visitor 不在 sudoers 文件中。此操作将被记录。',
+            ru: 'У visitor нет прав sudo. Это действие будет зарегистрировано.',
+            ar: 'لا يملك visitor صلاحية sudo. سيتم تسجيل هذا الإجراء.',
+        } satisfies Record<Language, string>)[language];
     if (outputKey === 'help') {
-        return language === 'id'
-            ? 'fastfetch  about  skills  experience  education  projects  contact  help  clear\nls  whoami  pwd  uname -a  date  echo <teks>  sudo <perintah>  exit'
-            : 'fastfetch  about  skills  experience  education  projects  contact  help  clear\nls  whoami  pwd  uname -a  date  echo <text>  sudo <command>  exit';
+        return ({
+            id: 'fastfetch  about  skills  experience  education  projects  contact  help  clear\nls  whoami  pwd  uname -a  date  echo <teks>  sudo <perintah>  exit',
+            en: 'fastfetch  about  skills  experience  education  projects  contact  help  clear\nls  whoami  pwd  uname -a  date  echo <text>  sudo <command>  exit',
+            ja: 'fastfetch  about  skills  experience  education  projects  contact  help  clear\nls  whoami  pwd  uname -a  date  echo <テキスト>  sudo <コマンド>  exit',
+            zh: 'fastfetch  about  skills  experience  education  projects  contact  help  clear\nls  whoami  pwd  uname -a  date  echo <文本>  sudo <命令>  exit',
+            ru: 'fastfetch  about  skills  experience  education  projects  contact  help  clear\nls  whoami  pwd  uname -a  date  echo <текст>  sudo <команда>  exit',
+            ar: 'fastfetch  about  skills  experience  education  projects  contact  help  clear\nls  whoami  pwd  uname -a  date  echo <نص>  sudo <أمر>  exit',
+        } satisfies Record<Language, string>)[language];
     }
     if (outputKey === 'clear') return '';
     return ABOUT_CONTENT[outputKey][language].join('\n');
