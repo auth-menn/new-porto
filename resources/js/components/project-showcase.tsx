@@ -1048,6 +1048,7 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                         aria-label={t('previousProject')}
                         onClick={() => moveProject(-1)}
                         disabled={activeIndex === 0}
+                        className={activeIndex === 0 ? 'invisible' : undefined}
                     >
                         <svg
                             className="project-arrow-icon project-arrow-icon--left"
@@ -1100,6 +1101,11 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
                         aria-label={t('nextProject')}
                         onClick={() => moveProject(1)}
                         disabled={activeIndex === projects.length - 1}
+                        className={
+                            activeIndex === projects.length - 1
+                                ? 'invisible'
+                                : undefined
+                        }
                     >
                         <svg
                             className="project-arrow-icon"
