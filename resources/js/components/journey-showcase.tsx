@@ -80,9 +80,9 @@ export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
 
                     if (!firstContent) return;
 
-                    const measure = () => {
+                    const measure = (content = firstContent) => {
                         const viewportRect = viewport.getBoundingClientRect();
-                        const slotRect = firstContent.getBoundingClientRect();
+                        const slotRect = content.getBoundingClientRect();
                         const firstX =
                             Number(gsap.getProperty(entries[0], 'x')) || 0;
                         const firstY =
@@ -112,6 +112,20 @@ export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
                     };
 
                     let timeline: gsap.core.Timeline | null = null;
+                    const syncFragmentHeights = () => {
+                        entries.forEach((entry) => {
+                            const content = entry.querySelector<HTMLElement>(
+                                '[data-journey-content]',
+                            );
+                            const fragments = entry.querySelector<HTMLElement>(
+                                '.journey-entry-fragments',
+                            );
+
+                            if (content && fragments) {
+                                fragments.style.height = `${content.getBoundingClientRect().height}px`;
+                            }
+                        });
+                    };
                     const setInitialPositions = () => {
                         entries.forEach((entry, index) => {
                             const positions = measure();
@@ -143,7 +157,20 @@ export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
                         });
                     };
 
+                    syncFragmentHeights();
                     setInitialPositions();
+                    const contentResizeObserver = new ResizeObserver(
+                        syncFragmentHeights,
+                    );
+                    entries.forEach((entry) => {
+                        const content = entry.querySelector<HTMLElement>(
+                            '[data-journey-content]',
+                        );
+
+                        if (content) {
+                            contentResizeObserver.observe(content);
+                        }
+                    });
 
                     section.dataset.journeyReady = 'true';
 
@@ -208,7 +235,7 @@ export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
                             },
                             {
                                 x: () => measure().exit.x,
-                                y: () => measure().exit.y,
+                                y: () => measure(outgoingContent).exit.y,
                                 duration: JOURNEY_CONFIG.timing.transition,
                                 ease: JOURNEY_CONFIG.ease,
                                 immediateRender: false,
@@ -324,6 +351,7 @@ export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
                     );
 
                     return () => {
+                        contentResizeObserver.disconnect();
                         delete section.dataset.horizontal;
                         section.dataset.journeyReady = 'false';
                     };

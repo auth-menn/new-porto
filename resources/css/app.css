@@ -3006,11 +3006,13 @@ html:not(.js) .project-photo {
 .journey-entry-face {
     position: relative;
     display: flex;
+    box-sizing: border-box;
     min-width: 0;
     min-height: clamp(280px, 46dvh, 500px);
     flex-direction: column;
     justify-content: space-between;
     padding: clamp(22px, 3vw, 44px);
+    overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--panel-fg) 34%, transparent);
     border-radius: clamp(14px, 1.6vw, 24px);
     background: var(--panel-bg);
@@ -5036,5 +5038,34 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
 
     .home-frame > footer:last-of-type {
         translate: 0 8px;
+    }
+}
+
+/* Journey cards size to their content; fragment layers are measured in React. */
+.journey-section[data-horizontal='true'] .journey-entry-content,
+.journey-section[data-horizontal='true'] .journey-entry-fragments {
+    height: auto;
+}
+
+.journey-section[data-horizontal='true'] .journey-entry-face {
+    height: auto;
+}
+
+.journey-section[data-horizontal='true']
+    .journey-entry-fragment
+    .journey-entry-face {
+    height: 100%;
+}
+
+@media (orientation: portrait) {
+    .home-tech-marquee .home-marquee-track > span > span {
+        padding-inline: clamp(4px, 1.4vw, 10px);
+    }
+
+    .home-tech-marquee .tech-icon-current,
+    .home-tech-marquee .home-marquee-track img,
+    .home-tech-marquee .home-marquee-track svg {
+        width: clamp(20px, 6vw, 28px);
+        height: clamp(20px, 6vw, 28px);
     }
 }
