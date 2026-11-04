@@ -17,7 +17,6 @@ function ProjectCard({
     project,
     index,
     setCardRef,
-    setImageRef,
     onImageAspectChange,
     active,
     visible,
@@ -25,7 +24,6 @@ function ProjectCard({
     project: Project;
     index: number;
     setCardRef: (index: number, element: HTMLElement | null) => void;
-    setImageRef: (index: number, element: HTMLDivElement | null) => void;
     onImageAspectChange: (index: number, aspectRatio: number) => void;
     active: boolean;
     visible: boolean;
@@ -107,7 +105,6 @@ export function ProjectSummary({
     const trackRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<Array<HTMLElement | null>>([]);
-    const imageRefs = useRef<Array<HTMLDivElement | null>>([]);
     const setCardAspectRatio = (index: number, aspectRatio: number) => {
         cardRefs.current[index]?.style.setProperty(
             '--project-card-aspect',
@@ -200,9 +197,7 @@ export function ProjectSummary({
                     0.18;
 
                 cardRefs.current.forEach((card, index) => {
-                    const image = imageRefs.current[index];
-
-                    if (!card || !image) {
+                    if (!card) {
                         return;
                     }
 
@@ -213,21 +208,10 @@ export function ProjectSummary({
                     const outgoingLift = index === outgoingIndex ? lift : 0;
                     const scale = Math.max(0.8, 1 - distance * 0.05);
                     const y = delta * metrics.peek - outgoingLift;
-                    let imageOpacity = isActive ? 1 : 0.55;
-
-                    if (index === outgoingIndex) {
-                        imageOpacity =
-                            1 -
-                            transitionProgress * 0.45 -
-                            Math.sin(Math.PI * transitionProgress) * 0.15;
-                    } else if (index === outgoingIndex + 1) {
-                        imageOpacity = 0.55 + transitionProgress * 0.45;
-                    }
 
                     card.style.transform = `translate3d(0, ${y}px, 0) scale(${scale})`;
                     card.style.zIndex = `${100 - Math.round(distance * 10) + (isActive ? 100 : 0)}`;
                     card.style.visibility = isVisible ? 'visible' : 'hidden';
-                    image.style.opacity = `${imageOpacity}`;
                 });
 
                 setActiveIndex((current) =>
@@ -354,9 +338,6 @@ export function ProjectSummary({
                                     }
                                     setCardRef={(cardIndex, element) => {
                                         cardRefs.current[cardIndex] = element;
-                                    }}
-                                    setImageRef={(cardIndex, element) => {
-                                        imageRefs.current[cardIndex] = element;
                                     }}
                                     onImageAspectChange={setCardAspectRatio}
                                 />

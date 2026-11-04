@@ -4865,6 +4865,17 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
     }
 }
 
+@media (orientation: landscape) and (min-width: 768px) {
+    .home-zoom .project-summary-label {
+        top: clamp(24px, 15vh, 150px);
+        transform: none;
+    }
+
+    .home-zoom .project-summary-viewport {
+        translate: 0 calc(-50% + clamp(18px, 6vh, 60px));
+    }
+}
+
 @media (orientation: portrait) and (min-width: 768px) {
     .home-zoom .project-summary {
         top: 58%;
