@@ -2190,6 +2190,12 @@ html:not(.js) .project-photo {
     text-transform: uppercase;
 }
 
+.contact-notice-message {
+    margin: 0;
+    color: color-mix(in srgb, var(--panel-fg) 78%, transparent);
+    font: 400 13px / 1.7 'JetBrains Mono', monospace;
+}
+
 .contact-form-close {
     display: grid;
     width: 42px;

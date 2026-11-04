@@ -6,26 +6,24 @@ export function ContactShowcase() {
     const { t } = useLang();
     const [lampIsOn, setLampIsOn] = useState(false);
     const [formIsOpen, setFormIsOpen] = useState(false);
+    const [messageNoticeIsOpen, setMessageNoticeIsOpen] = useState(false);
+
+    const closeContactDialog = () => {
+        setFormIsOpen(false);
+        setMessageNoticeIsOpen(false);
+    };
 
     const toggleLamp = () => {
         setLampIsOn(!lampIsOn);
         if (lampIsOn) {
-            setFormIsOpen(false);
+            closeContactDialog();
         }
     };
 
     const sendMessage = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        const formData = new FormData(event.currentTarget);
-        const subject = encodeURIComponent(
-            `${formData.get('subject')} — ${formData.get('name')}`,
-        );
-        const body = encodeURIComponent(
-            `${t('contactFormEmailLabel')}: ${formData.get('email')}\n\n${formData.get('message')}`,
-        );
-
-        window.location.href = `mailto:hello@example.com?subject=${subject}&body=${body}`;
+        setFormIsOpen(false);
+        setMessageNoticeIsOpen(true);
     };
 
     return (
@@ -79,12 +77,12 @@ export function ContactShowcase() {
                     {formIsOpen ? t('contactFormClose') : t('contactSendMessage')}
                 </button>
 
-                {formIsOpen && (
+                {(formIsOpen || messageNoticeIsOpen) && (
                     <button
                         type="button"
                         className="contact-form-backdrop"
                         aria-label={t('contactFormClose')}
-                        onClick={() => setFormIsOpen(false)}
+                        onClick={closeContactDialog}
                     />
                 )}
 
@@ -103,7 +101,7 @@ export function ContactShowcase() {
                             type="button"
                             aria-label={t('contactFormClose')}
                             tabIndex={formIsOpen ? 0 : -1}
-                            onClick={() => setFormIsOpen(false)}
+                            onClick={closeContactDialog}
                         >
                             <X aria-hidden="true" />
                         </button>
@@ -129,6 +127,40 @@ export function ContactShowcase() {
                         <ArrowUpRight aria-hidden="true" />
                     </button>
                 </form>
+                {messageNoticeIsOpen && (
+                    <div
+                        className="contact-form contact-notice is-open"
+                        role="alertdialog"
+                        aria-modal="true"
+                        aria-labelledby="contact-notice-title"
+                        aria-describedby="contact-notice-message"
+                    >
+                        <div className="contact-form-header">
+                            <h3 id="contact-notice-title">{t('contact')}</h3>
+                            <button
+                                className="contact-form-close"
+                                type="button"
+                                aria-label={t('contactFormClose')}
+                                onClick={closeContactDialog}
+                            >
+                                <X aria-hidden="true" />
+                            </button>
+                        </div>
+                        <p
+                            id="contact-notice-message"
+                            className="contact-notice-message"
+                        >
+                            Mohon maaf, fitur pesan masih dalam pengembangan.
+                        </p>
+                        <button
+                            className="contact-form-submit"
+                            type="button"
+                            onClick={closeContactDialog}
+                        >
+                            Tutup
+                        </button>
+                    </div>
+                )}
                 <div className="contact-grain" aria-hidden="true" />
             </div>
         </section>

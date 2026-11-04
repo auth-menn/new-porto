@@ -32,7 +32,7 @@ Route::get('/', function (): InertiaResponse {
                 'link' => $project->link,
             ],
         ),
-        'journeys' => Journey::query()->orderBy('start_year')->orderBy('id')->get()->map(
+        'journeys' => Journey::query()->latest('id')->get()->map(
             fn (Journey $journey): array => [
                 'id' => $journey->id,
                 'category' => $journey->category,

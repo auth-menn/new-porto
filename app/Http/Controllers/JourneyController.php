@@ -15,7 +15,7 @@ class JourneyController extends Controller
     public function index(): Response
     {
         return Inertia::render('journeys/index', [
-            'journeys' => Journey::query()->orderBy('start_year')->orderBy('id')->get()
+            'journeys' => Journey::query()->latest('id')->get()
                 ->map(fn (Journey $journey): array => $this->journeyData($journey)),
         ]);
     }
