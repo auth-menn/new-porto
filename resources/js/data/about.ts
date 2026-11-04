@@ -150,14 +150,14 @@ export const ABOUT_CONTENT: Record<
 > = {
     about: {
         id: [
-            'Saya adalah IT Developer yang berfokus pada pengembangan aplikasi web.',
-            'Ringkasan ini menjadi placeholder untuk latar belakang, minat, dan cara saya bekerja.',
-            'Detail pengalaman dan proyek akan diperbarui seiring perkembangan portfolio.',
+            'Saya berfokus membangun aplikasi web yang andal dan membantu menyederhanakan proses kerja.',
+            'Ruang lingkup saya mencakup pengembangan full-stack, solusi digital untuk klien, serta riset keamanan secara mandiri.',
+            'Dengan Laravel, React, dan teknologi web modern, saya terus mengembangkan praktik rekayasa perangkat lunak dan keamanan siber.',
         ],
         en: [
-            'I am an IT Developer focused on building web applications.',
-            'This summary is a placeholder for my background, interests, and working style.',
-            'Experience and project details can be updated as the portfolio grows.',
+            'I focus on building reliable web applications and improving the way teams work.',
+            'My interests span full-stack development, practical digital solutions, and independent security research.',
+            'I use Laravel, React, and modern web technologies while continuing to grow in software engineering and cybersecurity.',
         ],
     },
     skills: {

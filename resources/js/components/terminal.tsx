@@ -178,7 +178,7 @@ function getOutput(
     const { outputKey, command } = entry;
     if (outputKey === 'unknown') return `bash: ${command}: command not found`;
     if (outputKey === 'fastfetch') {
-        return `visitor@archlinux\n----------------\nName:     Firman Maulana Syabani\nRole:     IT Developer\nStack:    ${TECH_STACK.map((item) => item.name).join(', ')}\nLocation: [Kota], Indonesia\nContact:  hello@example.com`;
+        return `visitor@archlinux\n----------------\nName:     Firman Maulana Syabani\nRole:     IT Developer\nStack:    ${TECH_STACK.map((item) => item.name).join(', ')}\nLocation: Gresik, Indonesia\nContact:  auth.menn@gmail.com`;
     }
 
     if (outputKey === 'ls')

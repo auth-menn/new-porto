@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowUpRight } from 'lucide-react';
-import type { RefObject } from 'react';
+import type { MouseEvent, RefObject } from 'react';
 import {
     useActiveSection,
     setOptimisticActiveSection,
@@ -102,6 +102,8 @@ export function FullscreenMenu({
     const currentUrl = usePage().url;
     const previousUrl = useRef(currentUrl);
     const transitionReady = themeTransitionsReady ? '' : 'transition-none';
+    const hasMenuImages =
+        menuImages.left.length > 0 || menuImages.right.length > 0;
 
     useEffect(() => {
         if (!isOpen) {
@@ -214,6 +216,7 @@ export function FullscreenMenu({
             aria-label={t('menu')}
             aria-hidden={!isOpen}
             className={`pointer-events-auto fixed inset-0 z-40 h-dvh overflow-y-auto bg-[var(--menu-bg)] text-[var(--menu-fg)] motion-reduce:transition-none ${isOpen ? 'visible' : 'invisible'} ${transitionReady}`}
+            data-menu-gallery={hasMenuImages ? 'true' : 'false'}
             style={{
                 clipPath: isOpen ? 'inset(0)' : 'inset(0 0 100% 0)',
                 transitionProperty: themeTransitionsReady
@@ -308,7 +311,7 @@ export function FullscreenMenu({
                                     onFocus={() => setActiveLink(item.key)}
                                     onBlur={() => setActiveLink(null)}
                                     onMouseLeave={() => setActiveLink(null)}
-                                    className={`relative inline-block whitespace-nowrap transition-opacity duration-300 after:absolute after:inset-x-0 after:top-1/2 after:h-px after:origin-left after:scale-x-0 after:bg-[var(--menu-fg)] after:transition-[transform,filter] after:duration-300 hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-fg)] focus-visible:after:scale-x-100 aria-[current=location]:after:scale-x-100 aria-[current=location]:after:drop-shadow-[0_0_6px_var(--menu-fg)] aria-[current=page]:after:scale-x-100 aria-[current=page]:after:drop-shadow-[0_0_6px_var(--menu-fg)] ${activeLink && activeLink !== item.key ? 'opacity-55' : activeSection === (item.href === '/' ? 'home' : item.href.split('#')[1]) ? 'opacity-100' : 'opacity-55'}`}
+                                    className={`relative inline-block whitespace-nowrap transition-opacity duration-300 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-[var(--menu-fg)] after:transition-[transform,filter] after:duration-300 hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-fg)] focus-visible:after:scale-x-100 aria-[current=location]:after:scale-x-100 aria-[current=location]:after:drop-shadow-[0_0_6px_var(--menu-fg)] aria-[current=page]:after:scale-x-100 aria-[current=page]:after:drop-shadow-[0_0_6px_var(--menu-fg)] ${activeLink && activeLink !== item.key ? 'opacity-55' : activeSection === (item.href === '/' ? 'home' : item.href.split('#')[1]) ? 'opacity-100' : 'opacity-55'}`}
                                 >
                                     {t(item.key)}
                                 </Link>
@@ -363,11 +366,25 @@ export function FullscreenMenu({
 function ContactAndSocial({ closeOnClick }: { closeOnClick: () => void }) {
     const { t } = useLang();
 
+    const handleContactClick = (event: MouseEvent<HTMLAnchorElement>) => {
+        event.preventDefault();
+        setOptimisticActiveSection('kontak');
+        closeOnClick();
+
+        const delay = window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+        ).matches
+            ? 0
+            : 450;
+
+        window.setTimeout(() => goToSection('kontak'), delay);
+    };
+
     return (
         <>
             <a
-                href="mailto:auth.menn@gmail.com"
-                onClick={closeOnClick}
+                href="/#kontak"
+                onClick={handleContactClick}
                 className="inline-flex min-h-11 items-center gap-2 font-michroma text-xs underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
             >
                 {t('contactMe')}
