@@ -5069,29 +5069,3 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
         height: clamp(20px, 6vw, 28px);
     }
 }
-
-@media (orientation: landscape) and (min-width: 768px) {
-    #fullscreen-menu[data-menu-gallery='false'] .fullscreen-menu-nav {
-        left: 50%;
-        width: min(86vw, 680px);
-        translate: -50% -50%;
-    }
-
-    #fullscreen-menu[data-menu-gallery='false']
-        .fullscreen-menu-contact-desktop {
-        right: auto;
-        left: 50%;
-        width: min(86vw, 680px);
-        transform: translateX(-50%);
-    }
-}
-
-@media (orientation: portrait) {
-    #fullscreen-menu[data-menu-gallery='false'] .fullscreen-menu-content {
-        padding-bottom: 32px;
-    }
-
-    #fullscreen-menu[data-menu-gallery='false'] .fullscreen-menu-nav {
-        min-height: 0;
-    }
-}
