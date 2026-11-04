@@ -68,7 +68,18 @@ Route::get('/', function (): InertiaResponse {
 })->name('home');
 
 Route::get('sitemap.xml', function () {
-    return response()->view('sitemap')
+    $canonicalUrl = rtrim((string) config('seo.canonical_url'), '/').'/';
+    $escapedCanonicalUrl = htmlspecialchars($canonicalUrl, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+    $sitemap = <<<XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            <url>
+                <loc>{$escapedCanonicalUrl}</loc>
+            </url>
+        </urlset>
+        XML;
+
+    return response($sitemap)
         ->header('Content-Type', 'application/xml; charset=UTF-8');
 })->name('sitemap');
 
