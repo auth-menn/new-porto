@@ -3,11 +3,20 @@
 use App\Http\Controllers\JourneyController;
 use App\Http\Controllers\MenuImageController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Middleware\HandleAppearance;
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\PreventIndexing;
 use App\Models\Journey;
 use App\Models\MenuImage;
 use App\Models\Project;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -80,8 +89,19 @@ Route::get('sitemap.xml', function () {
     ]);
 
     return response($sitemap)
-        ->header('Content-Type', 'application/xml; charset=UTF-8');
-})->name('sitemap');
+        ->header('Content-Type', 'application/xml; charset=UTF-8')
+        ->header('Cache-Control', 'public, max-age=3600');
+})->withoutMiddleware([
+    EncryptCookies::class,
+    AddQueuedCookiesToResponse::class,
+    StartSession::class,
+    ShareErrorsFromSession::class,
+    PreventRequestForgery::class,
+    HandleAppearance::class,
+    HandleInertiaRequests::class,
+    AddLinkHeadersForPreloadedAssets::class,
+    PreventIndexing::class,
+])->name('sitemap');
 
 Route::get('robots.txt', function () {
     return response()->view('robots')
