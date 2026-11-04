@@ -1318,7 +1318,7 @@ html:not(.js) .about-roll {
     --peek: 22px;
     --project-card-height: calc(100cqw / var(--project-card-aspect, 1.6));
     --project-step: calc(var(--project-card-height) * 0.55);
-    --project-stage-height: calc(var(--project-card-height) + 6 * var(--peek));
+    --project-stage-height: calc(var(--project-card-height) + 4 * var(--peek));
     --site-header-h: max(56px, 6.9svh);
     position: absolute;
     z-index: 10;
@@ -1386,7 +1386,7 @@ html:not(.js) .about-roll {
 
 .project-card {
     position: absolute;
-    top: calc(3 * var(--peek));
+    top: calc(2 * var(--peek));
     right: 0;
     left: 0;
     height: auto;
@@ -1464,7 +1464,7 @@ html:not(.js) .about-roll {
     --peek: 16px;
     --project-card-height: calc(100cqw / var(--project-card-aspect, 1.6));
     --project-step: calc(var(--project-card-height) * 0.55);
-    --project-stage-height: calc(var(--project-card-height) + 6 * var(--peek));
+    --project-stage-height: calc(var(--project-card-height) + 4 * var(--peek));
 }
 
 .project-summary[data-layout='flow'] .project-summary-entrance {

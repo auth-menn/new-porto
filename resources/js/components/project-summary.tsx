@@ -12,7 +12,7 @@ type ProjectSummaryProps = {
     showHeader?: boolean;
 };
 
-const PILE_DEPTH = 3;
+const PILE_DEPTH = 2;
 function ProjectCard({
     project,
     index,
