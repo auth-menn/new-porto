@@ -3043,8 +3043,9 @@ html:not(.js) .project-photo {
 }
 
 .journey-entry-logo {
-    padding: 0;
-    object-fit: cover;
+    box-sizing: border-box;
+    padding: 6px;
+    object-fit: contain;
 }
 
 .journey-entry-logo-placeholder {
@@ -3140,7 +3141,12 @@ html:not(.js) .project-photo {
 
 .journey-entry-documentation {
     position: relative;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
     min-width: 0;
+    align-self: center;
+    box-sizing: border-box;
     aspect-ratio: 4 / 3;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--panel-fg) 30%, transparent);
