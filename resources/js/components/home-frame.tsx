@@ -1263,7 +1263,8 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
         const measure = () => {
             cancelAnimationFrame(animationFrame);
             animationFrame = requestAnimationFrame(() => {
-                const { width, height } = frame.getBoundingClientRect();
+                const width = frame.clientWidth;
+                const height = frame.clientHeight;
 
                 if (width > 0 && height > 0) {
                     setFrameShape(buildFramePath(width, height));
