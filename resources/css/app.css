@@ -4820,7 +4820,7 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
     }
 
     .home-zoom .project-summary {
-        top: 50%;
+        top: calc(50% + 4vh);
         right: 5%;
         bottom: auto;
         left: auto;
@@ -4854,7 +4854,7 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
 
 @media (orientation: landscape) and (max-height: 600px) {
     .home-zoom .project-summary {
-        top: 50%;
+        top: calc(50% + 24px);
         right: 4%;
         bottom: auto;
         left: auto;

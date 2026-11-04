@@ -23,7 +23,7 @@ Route::get('/', function (): InertiaResponse {
             'canonicalUrl' => rtrim(config('seo.canonical_url'), '/').'/',
             'socialImageUrl' => rtrim(config('seo.canonical_url'), '/').$homeSeo['social_image_path'],
         ],
-        'projects' => Project::query()->oldest('id')->get()->map(
+        'projects' => Project::query()->latest('id')->get()->map(
             fn (Project $project): array => [
                 'id' => $project->id,
                 'title' => $project->title,
