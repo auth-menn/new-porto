@@ -3,13 +3,13 @@ export const JOURNEY_CONFIG = {
         peekVisibleWPct: 0.216,
         peekVisibleHPct: 0.179,
         exitUpPct: 0.25,
-        stepVh: 110,
+        stepVh: 170,
     },
     mobile: {
         peekVisibleWPct: 0.26,
         peekVisibleHPct: 0.09,
         exitUpPct: 0.2,
-        stepVh: 100,
+        stepVh: 160,
     },
     timing: {
         transition: 1,
