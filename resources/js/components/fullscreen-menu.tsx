@@ -28,12 +28,6 @@ const pageLinks = [
 ] as const;
 
 const socialLinks = ['github', 'linkedin', 'instagram', 'youtube'] as const;
-const defaultMenuImages = [
-    '/images/menu/menu-1.webp',
-    '/images/menu/menu-2.webp',
-    '/images/menu/menu-3.webp',
-    '/images/menu/menu-4.webp',
-];
 
 function MenuPhoto({ src }: { src: string }) {
     const [available, setAvailable] = useState(true);
@@ -55,7 +49,9 @@ function MenuPhoto({ src }: { src: string }) {
 }
 
 function PhotoColumn({ images, reverse = false }: { images: MenuImages['left']; reverse?: boolean }) {
-    const photos = images.length ? images : defaultMenuImages.map((imageUrl, id) => ({ id, imageUrl }));
+    if (images.length === 0) {
+        return null;
+    }
 
     return (
         <div
@@ -70,7 +66,7 @@ function PhotoColumn({ images, reverse = false }: { images: MenuImages['left']; 
                         key={set}
                         className="menu-photo-set flex flex-col gap-[4vh] pb-[4vh]"
                     >
-                        {photos.map((photo, index) => (
+                        {images.map((photo, index) => (
                             <MenuPhoto key={`${photo.id}-${index}`} src={photo.imageUrl} />
                         ))}
                     </div>
