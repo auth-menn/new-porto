@@ -368,16 +368,8 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
                     : null;
 
                 if (section) {
-                    const headerHeight =
-                        document
-                            .querySelector<HTMLElement>('[data-site-header]')
-                            ?.getBoundingClientRect().height ?? 0;
-
                     window.scrollTo({
-                        top:
-                            section.getBoundingClientRect().top +
-                            window.scrollY -
-                            headerHeight,
+                        top: section.getBoundingClientRect().top + window.scrollY,
                         behavior: 'instant',
                     });
                     setHeroEntered(true);
@@ -534,6 +526,12 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
                 Boolean(journeyBounds) &&
                 journeyBounds!.top < window.innerHeight * 0.55 &&
                 journeyBounds!.bottom > window.innerHeight * 0.45;
+            const contactSection = document.getElementById('kontak');
+            const contactBounds = contactSection?.getBoundingClientRect();
+            const contactVisible =
+                Boolean(contactBounds) &&
+                contactBounds!.top < window.innerHeight * 0.55 &&
+                contactBounds!.bottom > window.innerHeight * 0.45;
             const header =
                 document.querySelector<HTMLElement>('[data-site-header]');
             if (header) {
@@ -551,10 +549,13 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
             } else if (activeSection === 'proyek') {
                 activeSection = 'tentang';
             }
-            if (journeyVisible) {
+            if (contactVisible) {
+                activeSection = 'kontak';
+            } else if (journeyVisible) {
                 activeSection = 'perjalanan';
             } else if (
-                activeSection === 'perjalanan' &&
+                (activeSection === 'perjalanan' ||
+                    activeSection === 'kontak') &&
                 journeyBounds &&
                 journeyBounds.top >= window.innerHeight * 0.55
             ) {
@@ -563,8 +564,12 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
             const threshold = ABOUT_CONFIG.activeAboutAt;
             const hysteresis = ABOUT_CONFIG.activeAboutHysteresis;
 
-            if (activeSection === 'proyek' || activeSection === 'perjalanan') {
-                // Keep the Projects marker while its handoff section is active.
+            if (
+                activeSection === 'proyek' ||
+                activeSection === 'perjalanan' ||
+                activeSection === 'kontak'
+            ) {
+                // Keep the section marker while its section is in view.
             } else if (progress < threshold - hysteresis) {
                 activeSection = 'home';
             } else if (
@@ -603,20 +608,8 @@ export function HomeFrame({ projects, journeys, themeTransitionsReady }: HomeFra
         };
 
         const observer = new IntersectionObserver(
-            (entries) => {
-                const visible = entries.find((entry) => entry.isIntersecting);
-                if (!visible) return;
-                activeSection = visible.target.id as typeof activeSection;
-                setScrollActiveSection(activeSection);
-                window.clearTimeout(settleTimer);
-                settleTimer = window.setTimeout(() => {
-                    const path = `${window.location.pathname}${window.location.search}`;
-                    window.history.replaceState(
-                        window.history.state,
-                        '',
-                        `${path}#${activeSection}`,
-                    );
-                }, 150);
+            () => {
+                updateActiveSection();
             },
             { rootMargin: '-45% 0px -45% 0px' },
         );

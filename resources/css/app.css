@@ -5013,4 +5013,16 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
     .project-showcase-counter-clip {
         bottom: calc(7% + var(--m-lap-h) + 22px);
     }
+
+    .home-zoom .project-summary {
+        top: 62%;
+    }
+
+    .home-zoom .project-summary-label {
+        transform: translateY(-12vh);
+    }
+
+    .home-frame > footer:last-of-type {
+        translate: 0 8px;
+    }
 }

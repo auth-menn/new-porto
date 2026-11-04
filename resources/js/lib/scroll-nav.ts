@@ -74,12 +74,7 @@ function targetForSection(id: ActiveSection): number | null {
         return target.getBoundingClientRect().top + window.scrollY;
     }
 
-    const headerHeight =
-        document
-            .querySelector<HTMLElement>('[data-site-header]')
-            ?.getBoundingClientRect().height ?? 0;
-
-    return target.getBoundingClientRect().top + window.scrollY - headerHeight;
+    return target.getBoundingClientRect().top + window.scrollY;
 }
 
 export function goToSection(id: ActiveSection): void {
@@ -88,6 +83,12 @@ export function goToSection(id: ActiveSection): void {
 
     cancelNavigation();
     setOptimisticActiveSection(id);
+
+    const path = `${window.location.pathname}${window.location.search}`;
+    const nextUrl = id === 'home' ? path : `${path}#${id}`;
+    if (`${path}${window.location.hash}` !== nextUrl) {
+        window.history.replaceState(window.history.state, '', nextUrl);
+    }
 
     const distance = Math.abs(target - window.scrollY);
     const reducedMotion = window.matchMedia(
