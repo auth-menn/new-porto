@@ -27,7 +27,17 @@ const pageLinks = [
     { key: 'contact', href: '/#kontak' },
 ] as const;
 
-const socialLinks = ['github', 'linkedin', 'instagram', 'youtube'] as const;
+const socialLinks = [
+    { key: 'github', href: 'https://github.com/auth-menn' },
+    {
+        key: 'linkedin',
+        href: 'https://www.linkedin.com/in/firman-maulana-syabani/',
+    },
+    {
+        key: 'instagram',
+        href: 'https://www.instagram.com/yourmenm?mdxt=MXg1Y2F5Zzlicnc5cQ%3D%3D&utm_source=qr',
+    },
+] as const;
 
 function MenuPhoto({ src }: { src: string }) {
     const [available, setAvailable] = useState(true);
@@ -356,7 +366,7 @@ function ContactAndSocial({ closeOnClick }: { closeOnClick: () => void }) {
     return (
         <>
             <a
-                href="mailto:hello@example.com"
+                href="mailto:auth.menn@gmail.com"
                 onClick={closeOnClick}
                 className="inline-flex min-h-11 items-center gap-2 font-michroma text-xs underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
             >
@@ -364,10 +374,10 @@ function ContactAndSocial({ closeOnClick }: { closeOnClick: () => void }) {
                 <ArrowUpRight aria-hidden="true" className="size-4" />
             </a>
             <div className="flex flex-wrap items-center justify-center gap-x-[2vw] gap-y-3 font-michroma text-[10px] uppercase sm:text-xs">
-                {socialLinks.map((key) => (
+                {socialLinks.map(({ key, href }) => (
                     <a
                         key={key}
-                        href="#"
+                        href={href}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={closeOnClick}

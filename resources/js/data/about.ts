@@ -196,14 +196,14 @@ export const ABOUT_CONTENT: Record<
     },
     contact: {
         id: [
-            'Email: hello@example.com',
-            'GitHub: github.com/username',
-            'LinkedIn: linkedin.com/in/username',
+            'Email: auth.menn@gmail.com',
+            'GitHub: https://github.com/auth-menn',
+            'LinkedIn: https://www.linkedin.com/in/firman-maulana-syabani/',
         ],
         en: [
-            'Email: hello@example.com',
-            'GitHub: github.com/username',
-            'LinkedIn: linkedin.com/in/username',
+            'Email: auth.menn@gmail.com',
+            'GitHub: https://github.com/auth-menn',
+            'LinkedIn: https://www.linkedin.com/in/firman-maulana-syabani/',
         ],
     },
 };

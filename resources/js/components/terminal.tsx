@@ -200,7 +200,8 @@ function getOutput(
         const matchingJourneys = journeys.filter((journey) =>
             outputKey === 'education'
                 ? journey.category === 'education'
-                : journey.category !== 'education',
+                : journey.category === 'workExperience' ||
+                  journey.category === 'internship',
         );
 
         return matchingJourneys.length
