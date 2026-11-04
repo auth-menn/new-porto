@@ -150,12 +150,12 @@ export const ABOUT_CONTENT: Record<
 > = {
     about: {
         id: [
-            'Saya berfokus membangun aplikasi web yang andal dan membantu menyederhanakan proses kerja.',
+            'Saya mengembangkan aplikasi web untuk mendukung operasional dan meningkatkan alur kerja.',
             'Ruang lingkup saya mencakup pengembangan full-stack, solusi digital untuk klien, serta riset keamanan secara mandiri.',
             'Dengan Laravel, React, dan teknologi web modern, saya terus mengembangkan praktik rekayasa perangkat lunak dan keamanan siber.',
         ],
         en: [
-            'I focus on building reliable web applications and improving the way teams work.',
+            'I develop web applications that support business operations and improve workflows.',
             'My interests span full-stack development, practical digital solutions, and independent security research.',
             'I use Laravel, React, and modern web technologies while continuing to grow in software engineering and cybersecurity.',
         ],
