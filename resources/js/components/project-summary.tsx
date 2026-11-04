@@ -50,10 +50,7 @@ function ProjectCard({
             className="project-card group"
         >
             <div className="project-card-image-wrap">
-                <div
-                    ref={(element) => setImageRef(index, element)}
-                    className="project-card-image-visual"
-                >
+                <div className="project-card-image-visual">
                     {!imageMissing ? (
                         <picture className="block h-full w-full">
                             <source
