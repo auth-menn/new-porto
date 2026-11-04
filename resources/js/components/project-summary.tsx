@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { Link } from '@inertiajs/react';
 import { useLang } from '@/lib/i18n';
 import type { Project } from '@/types';
@@ -150,11 +151,11 @@ export function ProjectSummary({
         const measure = () => {
             const sectionBounds = section.getBoundingClientRect();
             const card = cardRefs.current[0];
-            const cardBounds = card?.getBoundingClientRect();
+            const cardHeight = card?.offsetHeight ?? 1;
 
             metricsRef.current = {
-                step: Math.max(1, (cardBounds?.height ?? 1) * 0.55),
-                cardHeight: Math.max(1, cardBounds?.height ?? 1),
+                step: Math.max(1, cardHeight * 0.55),
+                cardHeight: Math.max(1, cardHeight),
                 peek: flowLayout ? 16 : 22,
                 documentTop: sectionBounds.top + window.scrollY,
                 stickyTop: flowLayout
@@ -318,6 +319,7 @@ export function ProjectSummary({
             data-hero-entered={heroEntered}
             aria-label={t('projectSummary')}
             className="project-summary"
+            style={{ '--project-count': projectCount } as CSSProperties}
         >
             <div
                 className="project-summary-entrance"
