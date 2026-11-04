@@ -30,6 +30,11 @@ class SaveJourneyRequest extends FormRequest
             'end_year' => ['nullable', 'integer', 'between:1900,2100', 'after_or_equal:start_year'],
             'activities' => ['required', 'array', 'min:1', 'max:8'],
             'activities.*' => ['required', 'string', 'max:500'],
+            'translations' => ['nullable', 'array:en,ja,zh,ru,ar'],
+            'translations.*' => ['array:title,activities'],
+            'translations.*.title' => ['nullable', 'string', 'max:255'],
+            'translations.*.activities' => ['nullable', 'array', 'max:8'],
+            'translations.*.activities.*' => ['nullable', 'string', 'max:500'],
             'logo_image' => [
                 'nullable',
                 'image',

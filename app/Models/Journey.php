@@ -19,6 +19,7 @@ class Journey extends Model
         'start_year',
         'end_year',
         'activities',
+        'translations',
         'documentation_path',
     ];
 
@@ -27,6 +28,9 @@ class Journey extends Model
      */
     protected function casts(): array
     {
-        return ['activities' => 'array'];
+        return [
+            'activities' => 'array',
+            'translations' => 'array',
+        ];
     }
 }

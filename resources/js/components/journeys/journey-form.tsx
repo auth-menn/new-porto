@@ -12,7 +12,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import type { Journey, JourneyCategory } from '@/types';
+import type {
+    Journey,
+    JourneyCategory,
+    JourneyTranslations,
+} from '@/types';
 import * as journeyRoutes from '@/routes/journeys';
 
 type JourneyFormData = {
@@ -22,6 +26,7 @@ type JourneyFormData = {
     start_year: string;
     end_year: string;
     activities: string[];
+    translations: JourneyTranslations;
     logo_image: File | null;
     documentation_image: File | null;
     _method?: 'put';
@@ -33,14 +38,36 @@ const categories: { value: JourneyCategory; label: string }[] = [
     { value: 'workExperience', label: 'Pengalaman kerja' },
 ];
 
+const translationLanguages = [
+    { value: 'en', label: 'English' },
+    { value: 'ja', label: '日本語' },
+    { value: 'zh', label: '简体中文' },
+    { value: 'ru', label: 'Русский' },
+    { value: 'ar', label: 'العربية' },
+] as const;
+
 export function JourneyForm({ journey }: { journey?: Journey }) {
+    const primaryActivities = journey?.activities ?? [''];
+    const translations = Object.fromEntries(
+        translationLanguages.map(({ value }) => [
+            value,
+            {
+                title: journey?.translations[value]?.title ?? '',
+                activities: primaryActivities.map(
+                    (_, index) =>
+                        journey?.translations[value]?.activities[index] ?? '',
+                ),
+            },
+        ]),
+    ) as JourneyTranslations;
     const form = useForm<JourneyFormData>({
         category: journey?.category ?? 'education',
         organization: journey?.organization ?? '',
         title: journey?.title ?? '',
         start_year: journey ? String(journey.startYear) : '',
         end_year: journey?.endYear ? String(journey.endYear) : '',
-        activities: journey?.activities ?? [''],
+        activities: primaryActivities,
+        translations,
         logo_image: null,
         documentation_image: null,
     });
@@ -77,6 +104,58 @@ export function JourneyForm({ journey }: { journey?: Journey }) {
         form.post(journeyRoutes.store().url, { forceFormData: true });
     };
 
+    const updatePrimaryActivities = (activities: string[]) => {
+        form.setData('activities', activities);
+        form.setData(
+            'translations',
+            Object.fromEntries(
+                translationLanguages.map(({ value }) => [
+                    value,
+                    {
+                        title: form.data.translations[value]?.title ?? '',
+                        activities: activities.map(
+                            (_, index) =>
+                                form.data.translations[value]?.activities[
+                                    index
+                                ] ?? '',
+                        ),
+                    },
+                ]),
+            ) as JourneyTranslations,
+        );
+    };
+
+    const updateTranslationTitle = (
+        language: (typeof translationLanguages)[number]['value'],
+        title: string,
+    ) => {
+        form.setData('translations', {
+            ...form.data.translations,
+            [language]: {
+                title,
+                activities: form.data.translations[language]?.activities ?? [],
+            },
+        });
+    };
+
+    const updateTranslationActivity = (
+        language: (typeof translationLanguages)[number]['value'],
+        index: number,
+        activity: string,
+    ) => {
+        const activities = [
+            ...(form.data.translations[language]?.activities ?? []),
+        ];
+        activities[index] = activity;
+        form.setData('translations', {
+            ...form.data.translations,
+            [language]: {
+                title: form.data.translations[language]?.title ?? '',
+                activities,
+            },
+        });
+    };
+
     return (
         <form onSubmit={submit} className="grid max-w-3xl gap-6">
             <div className="grid gap-2">
@@ -93,7 +172,7 @@ export function JourneyForm({ journey }: { journey?: Journey }) {
                 <InputError message={form.errors.organization} />
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="title">Program / posisi</Label>
+                <Label htmlFor="title">Program / posisi (Bahasa Indonesia)</Label>
                 <Input id="title" value={form.data.title} onChange={(event) => form.setData('title', event.target.value)} required maxLength={255} />
                 <InputError message={form.errors.title} />
             </div>
@@ -110,19 +189,96 @@ export function JourneyForm({ journey }: { journey?: Journey }) {
             </div>
             <div className="grid gap-2">
                 <div className="flex items-center justify-between gap-3">
-                    <Label>Aktivitas / tanggung jawab</Label>
-                    <Button type="button" variant="outline" size="sm" disabled={form.data.activities.length >= 8} onClick={() => form.setData('activities', [...form.data.activities, ''])}><Plus /> Tambah field</Button>
+                    <Label>Aktivitas / tanggung jawab (Bahasa Indonesia)</Label>
+                    <Button type="button" variant="outline" size="sm" disabled={form.data.activities.length >= 8} onClick={() => updatePrimaryActivities([...form.data.activities, ''])}><Plus /> Tambah field</Button>
                 </div>
                 <div className="grid gap-3">
                     {form.data.activities.map((activity, index) => (
                         <div key={index} className="flex items-start gap-2">
                             <Input aria-label={`Aktivitas ${index + 1}`} value={activity} onChange={(event) => form.setData('activities', form.data.activities.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} maxLength={500} required />
-                            <Button type="button" variant="outline" size="icon" aria-label={`Hapus aktivitas ${index + 1}`} disabled={form.data.activities.length <= 1} onClick={() => form.setData('activities', form.data.activities.filter((_, itemIndex) => itemIndex !== index))}><Minus /></Button>
+                            <Button type="button" variant="outline" size="icon" aria-label={`Hapus aktivitas ${index + 1}`} disabled={form.data.activities.length <= 1} onClick={() => updatePrimaryActivities(form.data.activities.filter((_, itemIndex) => itemIndex !== index))}><Minus /></Button>
                         </div>
                     ))}
                 </div>
                 <p className="text-sm text-muted-foreground">Maksimal 8 aktivitas.</p>
                 <InputError message={form.errors.activities} />
+            </div>
+            <div className="grid gap-3">
+                <div>
+                    <h2 className="font-medium">Terjemahan</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Bahasa Indonesia menjadi sumber utama. Kolom yang
+                        kosong akan menggunakan teks Bahasa Indonesia.
+                    </p>
+                </div>
+                {translationLanguages.map(({ value, label }) => (
+                    <details key={value} className="rounded-lg border p-4">
+                        <summary className="cursor-pointer font-medium">
+                            {label}
+                        </summary>
+                        <div className="mt-4 grid gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor={`translation-${value}-title`}>
+                                    Program / posisi ({label})
+                                </Label>
+                                <Input
+                                    id={`translation-${value}-title`}
+                                    value={
+                                        form.data.translations[value]?.title ?? ''
+                                    }
+                                    onChange={(event) =>
+                                        updateTranslationTitle(
+                                            value,
+                                            event.target.value,
+                                        )
+                                    }
+                                    maxLength={255}
+                                />
+                                <InputError
+                                    message={
+                                        form.errors[
+                                            `translations.${value}.title`
+                                        ]
+                                    }
+                                />
+                            </div>
+                            {form.data.activities.map((_, index) => (
+                                <div
+                                    key={`${value}-activity-${index}`}
+                                    className="grid gap-2"
+                                >
+                                    <Label
+                                        htmlFor={`translation-${value}-activity-${index}`}
+                                    >
+                                        Aktivitas {index + 1} ({label})
+                                    </Label>
+                                    <Input
+                                        id={`translation-${value}-activity-${index}`}
+                                        value={
+                                            form.data.translations[value]
+                                                ?.activities[index] ?? ''
+                                        }
+                                        onChange={(event) =>
+                                            updateTranslationActivity(
+                                                value,
+                                                index,
+                                                event.target.value,
+                                            )
+                                        }
+                                        maxLength={500}
+                                    />
+                                    <InputError
+                                        message={
+                                            form.errors[
+                                                `translations.${value}.activities.${index}`
+                                            ]
+                                        }
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </details>
+                ))}
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="documentation_image">Gambar dokumentasi (opsional)</Label>

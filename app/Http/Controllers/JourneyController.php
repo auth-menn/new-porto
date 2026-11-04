@@ -113,11 +113,12 @@ class JourneyController extends Controller
             'start_year' => $validated['start_year'],
             'end_year' => $validated['end_year'] ?? null,
             'activities' => $validated['activities'],
+            'translations' => $validated['translations'] ?? [],
         ];
     }
 
     /**
-     * @return array{id: int, category: string, organization: string, title: string, logoUrl: string|null, startYear: int, endYear: int|null, activities: array<int, string>, documentationUrl: string|null}
+     * @return array{id: int, category: string, organization: string, title: string, logoUrl: string|null, startYear: int, endYear: int|null, activities: array<int, string>, translations: array<string, array{title: string|null, activities: array<int, string|null>}>, documentationUrl: string|null}
      */
     private function journeyData(Journey $journey): array
     {
@@ -132,6 +133,7 @@ class JourneyController extends Controller
             'startYear' => $journey->start_year,
             'endYear' => $journey->end_year,
             'activities' => $journey->activities,
+            'translations' => $journey->translations ?? [],
             'documentationUrl' => $journey->documentation_path
                 ? Storage::disk('public')->url($journey->documentation_path)
                 : null,

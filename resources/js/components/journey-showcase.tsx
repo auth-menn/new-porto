@@ -34,17 +34,25 @@ const journeyFragments = Array.from(
 export function JourneyShowcase({ journeys }: { journeys: Journey[] }) {
     const sectionRef = useRef<HTMLElement>(null);
     const { language, t } = useLang();
-    const journeyItems: JourneyCardItem[] = journeys.map((journey, index) => ({
-        id: journey.id,
-        number: formatNumber(index + 1, language, 2),
-        category: journey.category,
-        period: `${formatNumber(journey.startYear, language)} — ${journey.endYear ? formatNumber(journey.endYear, language) : t('journeyCurrent')}`,
-        organization: journey.organization,
-        role: journey.title,
-        activities: journey.activities,
-        logoSrc: journey.logoUrl,
-        documentationSrc: journey.documentationUrl,
-    }));
+    const journeyItems: JourneyCardItem[] = journeys.map((journey, index) => {
+        const translation =
+            language === 'id' ? undefined : journey.translations[language];
+
+        return {
+            id: journey.id,
+            number: formatNumber(index + 1, language, 2),
+            category: journey.category,
+            period: `${formatNumber(journey.startYear, language)} — ${journey.endYear ? formatNumber(journey.endYear, language) : t('journeyCurrent')}`,
+            organization: journey.organization,
+            role: translation?.title?.trim() || journey.title,
+            activities: journey.activities.map(
+                (activity, activityIndex) =>
+                    translation?.activities[activityIndex]?.trim() || activity,
+            ),
+            logoSrc: journey.logoUrl,
+            documentationSrc: journey.documentationUrl,
+        };
+    });
 
     useGSAP(
         () => {
