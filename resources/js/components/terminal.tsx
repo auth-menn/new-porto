@@ -260,8 +260,19 @@ function getOutput(
                           ? formatNumber(journey.endYear, language)
                           : present[language];
                       const period = `${startYear}–${endYear}`;
-                      const activities = journey.activities.map((activity) => `   - ${activity}`).join('\n');
-                      return `${period}  ${journey.organization}\n   ${journey.title}${activities ? `\n${activities}` : ''}`;
+                      const translation =
+                          language === 'id'
+                              ? undefined
+                              : journey.translations?.[language];
+                      const title = translation?.title?.trim() || journey.title;
+                      const activities = journey.activities
+                          .map(
+                              (activity, activityIndex) =>
+                                  `   - ${translation?.activities[activityIndex]?.trim() || activity}`,
+                          )
+                          .join('\n');
+
+                      return `${period}  ${journey.organization}\n   ${title}${activities ? `\n${activities}` : ''}`;
                   })
                   .join('\n\n')
             : ({
