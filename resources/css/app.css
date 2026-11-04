@@ -1375,7 +1375,7 @@ html:not(.js) .about-roll {
 
 .project-summary-track {
     position: relative;
-    height: calc(var(--project-stage-height) + 4 * var(--project-step));
+    height: calc(var(--project-stage-height) + (var(--project-count, 5) - 1) * var(--project-step));
 }
 
 .project-summary-stage {
@@ -1469,7 +1469,7 @@ html:not(.js) .about-roll {
     width: 92%;
     height: calc(
         max(var(--project-stage-height), 100dvh - var(--site-header-h) - 12px) +
-            4 * var(--project-step)
+            (var(--project-count, 5) - 1) * var(--project-step)
     );
     margin: 0 auto 64px;
     --peek: 16px;
@@ -3528,7 +3528,7 @@ html:not(.js) .project-photo {
     .home-zoom .project-summary-track {
         position: relative;
         height: calc(
-            var(--project-stage-height) + 4 * var(--project-step)
+            var(--project-stage-height) + (var(--project-count, 5) - 1) * var(--project-step)
         );
     }
 
@@ -4977,8 +4977,40 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
     }
 }
 
-@media (orientation: portrait) and (max-height: 720px) {
-    .journey-entry-documentation {
-        display: none;
+@media (orientation: portrait) and (max-width: 767px) {
+    .project-showcase {
+        --m-lap-w: min(90vw, 900px, calc((93svh - 160px) / 1.41));
+        --m-lap-h: calc(var(--m-lap-w) / 1.6036);
+    }
+
+    .project-showcase .project-device--laptop {
+        top: auto;
+        right: auto;
+        bottom: 7%;
+        left: 50%;
+        width: var(--m-lap-w);
+        height: auto;
+        translate: -50% 0;
+    }
+
+    .project-showcase .project-device--mobile {
+        top: auto;
+        right: auto;
+        bottom: calc(7% + var(--m-lap-h) - 12px);
+        left: 50%;
+        width: calc(var(--m-lap-w) * 0.39);
+        height: auto;
+        translate: -50% 0;
+    }
+
+    .project-showcase-controls button,
+    .project-showcase-controls button:first-child,
+    .project-showcase-controls button:last-child {
+        top: auto;
+        bottom: calc(7% + var(--m-lap-h) + 8px);
+    }
+
+    .project-showcase-counter-clip {
+        bottom: calc(7% + var(--m-lap-h) + 22px);
     }
 }
