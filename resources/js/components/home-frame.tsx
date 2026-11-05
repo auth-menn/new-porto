@@ -144,6 +144,7 @@ function MenuMarquee() {
         >
             <div
                 ref={trackRef}
+                dir="ltr"
                 className={`home-marquee-track flex h-full w-max items-center ${isVisible ? '' : '[animation-play-state:paused]'}`}
                 style={{
                     animationDuration: trackWidth
