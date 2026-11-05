@@ -155,7 +155,7 @@ function MenuMarquee() {
                     <span
                         key={copyIndex}
                         aria-hidden={copyIndex > 0 || undefined}
-                        className="inline-flex items-center"
+                        className="inline-flex shrink-0 items-center"
                     >
                         {TECH_STACK.map((item) => (
                             <span
