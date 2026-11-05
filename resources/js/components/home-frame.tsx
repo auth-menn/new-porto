@@ -139,6 +139,7 @@ function MenuMarquee() {
     return (
         <div
             ref={marqueeRef}
+            dir="ltr"
             aria-hidden="true"
             className="home-tech-marquee absolute right-0 bottom-[5.3%] left-0 z-[1] h-[max(40px,5%)] overflow-hidden font-michroma text-[clamp(9px,0.9vw,16px)] whitespace-nowrap max-[767px]:bottom-[44px]"
         >
