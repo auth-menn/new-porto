@@ -125,4 +125,5 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('projects', ProjectController::class)->except('show');
     Route::resource('journeys', JourneyController::class)->except('show');
     Route::resource('menu-images', MenuImageController::class)->only(['index', 'store', 'update', 'destroy']);
-});
+
+    });
