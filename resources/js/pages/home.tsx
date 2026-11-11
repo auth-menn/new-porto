@@ -43,18 +43,25 @@ export default function Home({
             return;
         }
 
-            // Hero di posisi atas -> venom hanya di dalam panel. Selain itu -> fullscreen.
+        // Hero di posisi atas -> venom terpisah di dalam dan di luar panel.
         const panel = document.querySelector<HTMLElement>('[data-home-panel]');
-        const useScope = panel !== null && window.scrollY < 80;
+        const frame = document.querySelector<HTMLElement>('.home-frame');
+        const usePanelScope = panel !== null && frame !== null && window.scrollY < 80;
 
-        void playVenomTransition(button, () => updateAppearance(next), {
-            color: isDark ? '#ffffff' : '#000000',
-            mode: 'cover',
-            container: useScope ? panel : null,
-            // panel lebih kecil -> dibuat lebih lama supaya terasa sama pelannya
-            coverMs: useScope ? 6000 : 4500,
-            fadeOutMs: 1000,
-        });
+        void playVenomTransition(
+            button,
+            () => flushSync(() => updateAppearance(next)),
+            {
+                color: isDark ? '#ffffff' : '#000000',
+                mode: 'cover',
+                container: usePanelScope ? panel : null,
+                outsideContainer: usePanelScope ? frame : null,
+                outsideColor: isDark ? '#000000' : '#ffffff',
+                // panel lebih kecil -> dibuat lebih lama supaya terasa sama pelannya
+                coverMs: usePanelScope ? 6000 : 4500,
+                fadeOutMs: 1000,
+            },
+        );
     };
 
     useEffect(() => {
