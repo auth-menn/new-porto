@@ -19,6 +19,9 @@ type VenomOptions = {
     fadeOutMs?: number;
     color?: string;
     maxSize?: number;
+    outsideContainer?: HTMLElement | null;
+    outsideColor?: string;
+    originPoint?: { x: number; y: number };
     /** Jika diisi, venom dirender di dalam elemen ini (terpotong oleh clip-path-nya). */
     container?: HTMLElement | null;
 };
@@ -137,6 +140,7 @@ void main() {
 }`;
 
 let renderer: Renderer | null = null;
+let outsideRenderer: Renderer | null = null;
 let initFailed = false;
 let busy = false;
 
@@ -153,29 +157,7 @@ function compile(gl: WebGL2RenderingContext, type: number, source: string) {
     return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null;
 }
 
-function init(): Renderer | null {
-    if (renderer) {
-        return renderer;
-    }
-
-    if (initFailed || typeof document === 'undefined') {
-        return null;
-    }
-
-    const canvas = document.createElement('canvas');
-    canvas.setAttribute('aria-hidden', 'true');
-    canvas.dataset.venomCanvas = 'true';
-    Object.assign(canvas.style, {
-        position: 'fixed',
-        inset: '0',
-        width: '100%',
-        height: '100%',
-        // Di atas background halaman, tetapi di belakang seluruh konten aplikasi.
-        zIndex: '-1',
-        pointerEvents: 'none',
-        display: 'none',
-    });
-
+function createRenderer(canvas: HTMLCanvasElement): Renderer | null {
     const gl = canvas.getContext('webgl2', {
         premultipliedAlpha: true,
         alpha: true,
@@ -185,7 +167,6 @@ function init(): Renderer | null {
     const program = gl?.createProgram();
 
     if (!gl || !program) {
-        initFailed = true;
         return null;
     }
 
@@ -193,7 +174,6 @@ function init(): Renderer | null {
     const fragment = compile(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
 
     if (!vertex || !fragment) {
-        initFailed = true;
         return null;
     }
 
@@ -202,7 +182,6 @@ function init(): Renderer | null {
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        initFailed = true;
         return null;
     }
 
@@ -213,10 +192,56 @@ function init(): Renderer | null {
         loc[name] = gl.getUniformLocation(program, name);
     }
 
+    return { canvas, gl, loc };
+}
+
+function createCanvas(): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('aria-hidden', 'true');
+    canvas.dataset.venomCanvas = 'true';
+    Object.assign(canvas.style, {
+        position: 'fixed',
+        inset: '0',
+        width: '100%',
+        height: '100%',
+        zIndex: '-1',
+        pointerEvents: 'none',
+        display: 'none',
+    });
+
+    return canvas;
+}
+
+function init(): Renderer | null {
+    if (renderer) {
+        return renderer;
+    }
+
+    if (initFailed || typeof document === 'undefined') {
+        return null;
+    }
+
+    const canvas = createCanvas();
+    renderer = createRenderer(canvas);
+
+    if (!renderer) {
+        initFailed = true;
+        return null;
+    }
+
     document.body.appendChild(canvas);
-    renderer = { canvas, gl, loc };
 
     return renderer;
+}
+
+function initOutside(): Renderer | null {
+    if (outsideRenderer) {
+        return outsideRenderer;
+    }
+
+    outsideRenderer = createRenderer(createCanvas());
+
+    return outsideRenderer;
 }
 
 function hexToRgb(color: string): [number, number, number] {
@@ -245,8 +270,12 @@ function layout(r: Renderer, origin: HTMLElement, options: VenomOptions) {
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     const rect = origin.getBoundingClientRect();
-    const ox = (rect.left + rect.width / 2 - left) * scale;
-    const oy = (rect.top + rect.height / 2 - top) * scale;
+    const ox = options.originPoint
+        ? options.originPoint.x * width * scale
+        : (rect.left + rect.width / 2 - left) * scale;
+    const oy = options.originPoint
+        ? options.originPoint.y * height * scale
+        : (rect.top + rect.height / 2 - top) * scale;
     const radius = Math.max(
         Math.hypot(ox, oy),
         Math.hypot(canvas.width - ox, oy),
@@ -273,11 +302,8 @@ function draw(r: Renderer, progress: number, time: number) {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
-// Layar sudah tertutup rapat (opaque) pada progress ini, jadi tema aman diganti
-const SWAP_AT = 0.86;
-
-// progress venom (0..1) saat tema diganti. 0.5 = pertengahan.
-const SWAP_AT_PROGRESS = 0.45;
+// Ganti tema konten tepat di pertengahan animasi venom.
+const SWAP_AT_PROGRESS = 0.5;
 
 function run(
     r: Renderer,
@@ -285,6 +311,7 @@ function run(
     to: number,
     duration: number,
     onFrame?: (progress: number) => void,
+    outside?: { renderer: Renderer; origin: HTMLElement; options: VenomOptions },
 ) {
     return new Promise<void>((resolve) => {
         const startedAt = performance.now();
@@ -295,6 +322,9 @@ function run(
             const progress = from + (to - from) * eased;
 
             draw(r, progress, now / 1000);
+            if (outside) {
+                draw(outside.renderer, progress, now / 1000);
+            }
             onFrame?.(progress);
 
             if (t < 1) {
@@ -383,9 +413,38 @@ export async function playVenomTransition(
     const { canvas } = r;
     const mode = options.mode ?? 'cover';
     const container = options.container ?? null;
-    const onResize = () => layout(r, origin, options);
+    const outsideContainer = options.outsideContainer ?? null;
+    const outside = outsideContainer ? initOutside() : null;
+    const originRect = origin.getBoundingClientRect();
+    const outsideRect = outsideContainer?.getBoundingClientRect();
+    const originX = outsideRect?.width
+        ? (originRect.left + originRect.width / 2 - outsideRect.left) /
+          outsideRect.width
+        : 0.5;
+    const originY = outsideRect?.height
+        ? (originRect.top + originRect.height / 2 - outsideRect.top) /
+          outsideRect.height
+        : 0.5;
+    const outsideOptions = {
+        ...options,
+        container: outsideContainer,
+        color: options.outsideColor ?? '#000000',
+        originPoint: {
+            x: Math.max(0, Math.min(1, 1 - originX)),
+            y: Math.max(0, Math.min(1, 1 - originY)),
+        },
+    };
+    const onResize = () => {
+        layout(r, origin, options);
+        if (outside) {
+            layout(outside, origin, outsideOptions);
+        }
+    };
 
     mount(r, container);
+    if (outside && outsideContainer) {
+        mount(outside, outsideContainer);
+    }
     root.dataset.venomScope = container ? 'panel' : 'full';
     root.dataset.venomActive =
         (options.color ?? '#050507').toLowerCase() === '#ffffff'
@@ -393,6 +452,10 @@ export async function playVenomTransition(
             : 'dark';
     layout(r, origin, options);
     canvas.style.display = 'block';
+    if (outside) {
+        layout(outside, origin, outsideOptions);
+        outside.canvas.style.display = 'block';
+    }
     window.addEventListener('resize', onResize);
 
     try {
@@ -410,19 +473,24 @@ export async function playVenomTransition(
                     swapped = true;
                     applyTheme();
                 }
-            });
+            }, outside ? { renderer: outside, origin, options: outsideOptions } : undefined);
 
             if (!swapped) {
                 applyTheme();
             }
 
-            // lepas warna latar lama: latar di BAWAH canvas kini sudah tema baru
+            // Lepas warna latar lama: latar di BAWAH canvas kini sudah tema baru
             root.style.removeProperty('background-color');
             container?.style.removeProperty('background-color');
             await nextFrames(2);
 
             // canvas memudar pelan di atas latar baru -> tidak ada lompatan warna
-            await fadeCanvas(canvas, 0, options.fadeOutMs ?? 900);
+            await Promise.all([
+                fadeCanvas(canvas, 0, options.fadeOutMs ?? 900),
+                ...(outside
+                    ? [fadeCanvas(outside.canvas, 0, options.fadeOutMs ?? 900)]
+                    : []),
+            ]);
         } else {
             canvas.style.opacity = '0';
             draw(r, 1, 0);
@@ -453,6 +521,12 @@ export async function playVenomTransition(
         root.style.removeProperty('background-color');
         root.style.removeProperty('--venom-old-bg');
         container?.style.removeProperty('background-color');
+        if (outside) {
+            outside.canvas.style.display = 'none';
+            outside.canvas.style.opacity = '1';
+            outside.canvas.style.transition = '';
+            document.body.appendChild(outside.canvas);
+        }
 
         if (container) {
             document.body.appendChild(canvas);
