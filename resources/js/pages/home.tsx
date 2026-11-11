@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { Head } from '@inertiajs/react';
 import { HomeFrame } from '@/components/home-frame';
 import { SiteHeader } from '@/components/site-header';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useLang } from '@/lib/i18n';
+import {
+    playVenomTransition,
+    warmUpVenomTransition,
+} from '@/lib/venom-transition';
 import type { Journey, MenuImages, Project } from '@/types';
 
 type HomeSeo = {
@@ -28,10 +33,34 @@ export default function Home({
     const { t } = useLang();
     const [themeTransitionsReady, setThemeTransitionsReady] = useState(false);
     const isDark = resolvedAppearance === 'dark';
+        
+    const toggleAppearance = () => {
+        const next = isDark ? 'light' : 'dark';
+        const button = document.querySelector<HTMLElement>('#theme-toggle');
+
+        if (!button) {
+            updateAppearance(next);
+            return;
+        }
+
+            // Hero di posisi atas -> venom hanya di dalam panel. Selain itu -> fullscreen.
+        const panel = document.querySelector<HTMLElement>('[data-home-panel]');
+        const useScope = panel !== null && window.scrollY < 80;
+
+        void playVenomTransition(button, () => updateAppearance(next), {
+            color: isDark ? '#ffffff' : '#000000',
+            mode: 'cover',
+            container: useScope ? panel : null,
+            // panel lebih kecil -> dibuat lebih lama supaya terasa sama pelannya
+            coverMs: useScope ? 6000 : 4500,
+            fadeOutMs: 1000,
+        });
+    };
 
     useEffect(() => {
         const frame = requestAnimationFrame(() => {
             setThemeTransitionsReady(true);
+            warmUpVenomTransition();
         });
 
         return () => cancelAnimationFrame(frame);
@@ -73,7 +102,7 @@ export default function Home({
             <SiteHeader
                 isDark={isDark}
                 menuImages={menuImages}
-                onAppearanceToggle={() => updateAppearance(isDark ? 'light' : 'dark')}
+                onAppearanceToggle={toggleAppearance}
                 themeTransitionsReady={themeTransitionsReady}
             />
             <HomeFrame

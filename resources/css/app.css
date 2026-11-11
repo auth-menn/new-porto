@@ -5069,3 +5069,60 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
         height: clamp(20px, 6vw, 28px);
     }
 }
+
+/* ikon tombol tema mengikuti warna venom */
+html[data-venom-active='dark'] [data-header-cluster] {
+    color: #fff !important;
+}
+html[data-venom-active='light'] [data-header-cluster] {
+    color: #000 !important;
+}
+
+/* selama venom aktif, perubahan warna tema di balik canvas harus instan (tanpa blink).
+   Hanya transisi CSS yang dimatikan; animasi GSAP/keyframe tidak terpengaruh. */
+/* selama venom: warna memudar singkat & halus, bukan melompat */
+html[data-venom-active] *:not([data-venom-canvas]),
+html[data-venom-active] *:not([data-venom-canvas])::before,
+html[data-venom-active] *:not([data-venom-canvas])::after {
+    transition-property: color, background-color, border-color, fill, stroke,
+        opacity, text-decoration-color !important;
+    transition-duration: 800ms !important;
+    transition-delay: 0s !important;
+    transition-timing-function: ease-out !important;
+}
+
+/* setelah canvas dilepas: tidak ada transisi apa pun selama 2 frame */
+html[data-venom-settle] *,
+html[data-venom-settle] *::before,
+html[data-venom-settle] *::after {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+}
+/* Venom: background section transparan supaya canvas (z-index -1) terlihat
+   di belakang konten, tetapi di depan warna latar <html> */
+html[data-venom-active]:not([data-venom-scope='panel']) body,
+html[data-venom-active]:not([data-venom-scope='panel']) .home-page,
+html[data-venom-active]:not([data-venom-scope='panel']) .about-scene,
+html[data-venom-active]:not([data-venom-scope='panel']) .home-frame,
+html[data-venom-active]:not([data-venom-scope='panel']) [data-home-panel],
+html[data-venom-active]:not([data-venom-scope='panel']) .project-showcase,
+html[data-venom-active]:not([data-venom-scope='panel']) .journey-section,
+html[data-venom-active]:not([data-venom-scope='panel']) .contact-section {
+    background: transparent !important;
+}
+
+html[data-venom-active]:not([data-venom-scope='panel']) .home-frame svg path {
+    fill: transparent !important;
+    stroke: transparent !important;
+}
+
+html[data-venom-active]:not([data-venom-scope='panel']) body,
+html[data-venom-active]:not([data-venom-scope='panel']) .home-page,
+html[data-venom-active]:not([data-venom-scope='panel']) .about-scene,
+html[data-venom-active]:not([data-venom-scope='panel']) .home-frame,
+html[data-venom-active]:not([data-venom-scope='panel']) [data-home-panel],
+html[data-venom-active]:not([data-venom-scope='panel']) .project-showcase,
+html[data-venom-active]:not([data-venom-scope='panel']) .journey-section,
+html[data-venom-active]:not([data-venom-scope='panel']) .contact-section {
+    transition-property: color, border-color, fill, stroke !important;
+}

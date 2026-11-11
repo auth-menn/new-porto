@@ -401,8 +401,9 @@ function ContactAndSocial({ closeOnClick }: { closeOnClick: () => void }) {
                     </a>
                 ))}
                 <a
-                    href="/cv.pdf"
-                    download
+                    href="https://drive.google.com/file/d/1e5EbcFGfLl9KUbw5xdA1i11DC00OShUd/view?usp=drive_link"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={closeOnClick}
                     className="underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
                 >

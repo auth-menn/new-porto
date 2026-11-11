@@ -281,11 +281,13 @@ export function SiteHeader({
             >
                 <SiteLogo language={language} />
             </div>
-
+            
             <div
+               data-header-cluster
                 className={`pointer-events-auto absolute top-[calc(max(6px,1svh)+(max(64px,7.5svh)-max(6px,1svh)-44px)/2)] left-1/2 z-50 flex h-11 -translate-x-1/2 items-center gap-4 transition-colors duration-500 motion-reduce:transition-none max-[767px]:top-[calc(max(64px,7.5svh)-52px+4px)] max-[767px]:gap-0 ${clusterColor} ${transitionReady}`}
             >
                 <button
+                    id="theme-toggle"
                     type="button"
                     aria-label={isDark ? t('themeLight') : t('themeDark')}
                     onClick={onAppearanceToggle}
