@@ -5091,6 +5091,13 @@ html[data-venom-active] *:not([data-venom-canvas])::after {
     transition-timing-function: ease-out !important;
 }
 
+html[data-venom-active][data-venom-scope='panel'] .home-frame,
+html[data-venom-active][data-venom-scope='panel'] .home-frame *,
+html[data-venom-active][data-venom-scope='panel'] .home-frame *::before,
+html[data-venom-active][data-venom-scope='panel'] .home-frame *::after {
+    transition-duration: 300ms !important;
+}
+
 /* setelah canvas dilepas: tidak ada transisi apa pun selama 2 frame */
 html[data-venom-settle] *,
 html[data-venom-settle] *::before,

@@ -57,7 +57,6 @@ export default function Home({
                 container: usePanelScope ? panel : null,
                 outsideContainer: usePanelScope ? frame : null,
                 outsideColor: isDark ? '#000000' : '#ffffff',
-                // panel lebih kecil -> dibuat lebih lama supaya terasa sama pelannya
                 coverMs: usePanelScope ? 6000 : 4500,
                 fadeOutMs: 1000,
             },

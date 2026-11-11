@@ -302,6 +302,8 @@ function draw(r: Renderer, progress: number, time: number) {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
+const SWAP_AT_PROGRESS = 0.5;
+
 function run(
     r: Renderer,
     from: number,
@@ -462,17 +464,27 @@ export async function playVenomTransition(
             holder.style.backgroundColor = getComputedStyle(holder).backgroundColor;
             root.style.setProperty('--venom-old-bg', getComputedStyle(holder).backgroundColor);
 
-            // Selesaikan venom menutup dahulu, lalu mulai transisi tema konten.
+            let swapped = false;
+
             await run(
                 r,
                 0,
                 1,
                 options.coverMs ?? 3000,
-                undefined,
+                (progress) => {
+                    if (!swapped && progress >= SWAP_AT_PROGRESS) {
+                        swapped = true;
+                        applyTheme();
+                    }
+                },
                 outside
                     ? { renderer: outside, origin, options: outsideOptions }
                     : undefined,
             );
+
+            if (!swapped) {
+                applyTheme();
+            }
             applyTheme();
 
             // Lepas warna latar lama: latar di BAWAH canvas kini sudah tema baru
