@@ -5091,8 +5091,7 @@ html[data-venom-settle] *::after {
     transition-duration: 0s !important;
     transition-delay: 0s !important;
 }
-/* Venom: background section transparan supaya canvas (z-index -1) terlihat
-   di belakang konten, tetapi di depan warna latar <html> */
+
 html[data-venom-active]:not([data-venom-scope='panel']) body,
 html[data-venom-active]:not([data-venom-scope='panel']) .home-page,
 html[data-venom-active]:not([data-venom-scope='panel']) .about-scene,
@@ -5133,7 +5132,3 @@ html[data-venom-active] {
         --background 1000ms ease-in-out,
         --foreground 1000ms ease-in-out;
 }
-
-
-
-

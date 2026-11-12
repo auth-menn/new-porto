@@ -242,7 +242,14 @@ export function FullscreenMenu({
                     className="fullscreen-menu-nav relative z-10 mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center text-center md:absolute md:top-1/2 md:left-[77%] md:min-h-0 md:w-[42%] md:-translate-x-1/2 md:-translate-y-1/2"
                 >
                     <ul className="space-y-0 font-michroma text-[clamp(26px,3.6vw,72px)] leading-[1.15] uppercase">
-                        {pageLinks.map((item, index) => (
+                        {pageLinks.map((item, index) => {
+                            const isActive =
+                                activeSection ===
+                                (item.href === '/'
+                                    ? 'home'
+                                    : item.href.split('#')[1]);
+
+                            return (
                             <li
                                 key={item.key}
                                 className={`transform transition-[transform,opacity] duration-500 motion-reduce:transition-none ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}
@@ -295,10 +302,7 @@ export function FullscreenMenu({
                                         }, delay);
                                     }}
                                     aria-current={
-                                        activeSection ===
-                                        (item.href === '/'
-                                            ? 'home'
-                                            : item.href.split('#')[1])
+                                        isActive
                                             ? item.href === '/'
                                                 ? 'page'
                                                 : 'location'
@@ -308,12 +312,13 @@ export function FullscreenMenu({
                                     onFocus={() => setActiveLink(item.key)}
                                     onBlur={() => setActiveLink(null)}
                                     onMouseLeave={() => setActiveLink(null)}
-                                    className={`relative inline-block whitespace-nowrap transition-opacity duration-300 after:absolute after:inset-x-0 after:top-1/2 after:h-px after:origin-left after:scale-x-0 after:bg-[var(--menu-fg)] after:transition-[transform,filter] after:duration-300 hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-fg)] focus-visible:after:scale-x-100 aria-[current=location]:after:scale-x-100 aria-[current=location]:after:drop-shadow-[0_0_6px_var(--menu-fg)] aria-[current=page]:after:scale-x-100 aria-[current=page]:after:drop-shadow-[0_0_6px_var(--menu-fg)] ${activeLink && activeLink !== item.key ? 'opacity-55' : activeSection === (item.href === '/' ? 'home' : item.href.split('#')[1]) ? 'opacity-100' : 'opacity-55'}`}
+                                    className={`relative inline-block whitespace-nowrap transition-[opacity,color,filter] duration-300 after:absolute after:inset-x-0 after:top-1/2 after:h-px after:origin-left after:scale-x-0 after:bg-[var(--menu-fg)] after:transition-[transform,filter] after:duration-300 hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-fg)] focus-visible:after:scale-x-100 aria-[current=location]:top-auto aria-[current=location]:bottom-0 aria-[current=location]:h-[2px] aria-[current=location]:scale-100 aria-[current=location]:drop-shadow-[0_0_8px_var(--menu-fg)] aria-[current=location]:text-[var(--menu-fg)] aria-[current=location]:drop-shadow-[0_0_12px_var(--menu-fg)] aria-[current=page]:top-auto aria-[current=page]:bottom-0 aria-[current=page]:h-[2px] aria-[current=page]:scale-100 aria-[current=page]:drop-shadow-[0_0_8px_var(--menu-fg)] aria-[current=page]:text-[var(--menu-fg)] aria-[current=page]:drop-shadow-[0_0_12px_var(--menu-fg)] ${isActive ? 'text-[var(--menu-fg)] drop-shadow-[0_0_12px_var(--menu-fg)]' : 'opacity-55'} ${activeLink && activeLink !== item.key && !isActive ? 'opacity-55' : ''}`}
                                 >
                                     {t(item.key)}
                                 </Link>
                             </li>
-                        ))}
+                            );
+                        })}
                         {menuLogoAvailable && (
                             <li
                                 aria-hidden="true"
