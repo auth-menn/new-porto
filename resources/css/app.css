@@ -4250,8 +4250,9 @@ html:not(.dark) .contact-light-stage .contact-message-trigger::before {
     .contact-light-stage .contact-message-trigger {
         top: 76%;
         max-width: 80%;
-        padding: 0.34em 0.95em;
-        font-size: 5.5em;
+        min-height: 48px;
+        padding: 0.6em 1.15em;
+        font-size: clamp(17px, 4.8vw, 21px);
         line-height: 1.2;
         white-space: normal;
     }
