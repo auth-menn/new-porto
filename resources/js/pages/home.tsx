@@ -68,7 +68,18 @@ export default function Home({
             warmUpVenomTransition();
         });
 
-        return () => cancelAnimationFrame(frame);
+        // setelah tema final, paksa semua logika berbasis scroll menghitung ulang
+        const onSettled = () => {
+            window.dispatchEvent(new Event('resize'));
+            window.dispatchEvent(new Event('scroll'));
+            // jika memakai GSAP: ScrollTrigger.refresh();
+        };
+        window.addEventListener('venom-settled', onSettled);
+
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener('venom-settled', onSettled);
+        };
     }, []);
 
     return (

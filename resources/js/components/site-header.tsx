@@ -256,6 +256,9 @@ export function SiteHeader({
     const triggerRef = useRef<HTMLButtonElement>(null);
     const { language, t } = useLang();
     const transitionReady = themeTransitionsReady ? '' : 'transition-none';
+const colorTransition = isMenuOpen
+    ? 'transition-none'
+    : 'transition-colors duration-500 motion-reduce:transition-none';
     const clusterColor = isMenuOpen
         ? 'text-[var(--menu-fg)]'
         : 'text-[var(--panel-fg)]';
@@ -277,14 +280,14 @@ export function SiteHeader({
         >
             <div
                 data-header-edge-color
-                className={`pointer-events-auto relative z-50 flex h-full items-center transition-colors duration-500 motion-reduce:transition-none ${frameControlColor}`}
+                className={`pointer-events-auto relative z-50 flex h-full items-center ${colorTransition} ${frameControlColor}`}
             >
                 <SiteLogo language={language} />
             </div>
             
             <div
                data-header-cluster
-                className={`pointer-events-auto absolute top-[calc(max(6px,1svh)+(max(64px,7.5svh)-max(6px,1svh)-44px)/2)] left-1/2 z-50 flex h-11 -translate-x-1/2 items-center gap-4 transition-colors duration-500 motion-reduce:transition-none max-[767px]:top-[calc(max(64px,7.5svh)-52px+4px)] max-[767px]:gap-0 ${clusterColor} ${transitionReady}`}
+                className={`pointer-events-auto absolute top-[calc(max(6px,1svh)+(max(64px,7.5svh)-max(6px,1svh)-44px)/2)] left-1/2 z-50 flex h-11 -translate-x-1/2 items-center gap-4 ${colorTransition} max-[767px]:top-[calc(max(64px,7.5svh)-52px+4px)] max-[767px]:gap-0 ${clusterColor} ${transitionReady}`}
             >
                 <button
                     id="theme-toggle"
@@ -308,7 +311,7 @@ export function SiteHeader({
 
             <div
                 data-header-edge-color
-                className={`pointer-events-auto relative z-50 flex h-full items-center transition-colors duration-500 motion-reduce:transition-none ${frameControlColor}`}
+                className={`pointer-events-auto relative z-50 flex h-full items-center ${colorTransition} ${frameControlColor}`}
             >
                 <button
                     ref={triggerRef}

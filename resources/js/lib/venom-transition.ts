@@ -457,12 +457,26 @@ export async function playVenomTransition(
         },
     };
     let maxSize = options.maxSize;
-    const onResize = () => {
-        layout(r, origin, { ...options, maxSize });
-        if (outside) {
-            layout(outside, origin, { ...outsideOptions, maxSize });
-        }
-    };
+let lastProgress = 0;
+let lastW = window.innerWidth;
+
+const relayout = () => {
+    layout(r, origin, { ...options, maxSize });
+    if (outside) {
+        layout(outside, origin, { ...outsideOptions, maxSize });
+    }
+    // gambar ulang seketika agar canvas tidak kosong 1 frame
+    const t = performance.now() / 1000;
+    draw(r, lastProgress, t);
+    if (outside) draw(outside, lastProgress, t);
+};
+
+const onResize = () => {
+    // abaikan resize yang hanya mengubah tinggi (bar alamat mobile)
+    if (window.innerWidth === lastW) return;
+    lastW = window.innerWidth;
+    relayout();
+};
 
     mount(r, container);
     if (outside && outsideContainer) {
@@ -496,6 +510,7 @@ export async function playVenomTransition(
                 1,
                 options.coverMs ?? 3000,
                 (progress) => {
+                    lastProgress = progress;
                     if (!swapped && progress >= SWAP_AT_PROGRESS) {
                         swapped = true;
                         window.setTimeout(applyTheme, 0);
@@ -505,9 +520,8 @@ export async function playVenomTransition(
                     ? { renderer: outside, origin, options: outsideOptions }
                     : undefined,
                 () => {
-                    // perangkat lambat: turunkan resolusi canvas
                     maxSize = 560;
-                    onResize();
+                    relayout();
                 },
             );
 
@@ -515,9 +529,13 @@ export async function playVenomTransition(
                 applyTheme();
             }
 
-            // Lepas warna latar lama: latar di BAWAH canvas kini sudah tema baru
-            root.style.removeProperty('background-color');
-            container?.style.removeProperty('background-color');
+            // canvas kini menutup layar penuh dengan warna tema baru,
+            // jadi latar di belakangnya diganti ke warna yang sama (tidak terlihat)
+            const newBg = options.color ?? '#000000';
+            holder.style.backgroundColor = newBg;
+            if (outsideContainer) {
+                outsideContainer.style.backgroundColor = options.outsideColor ?? '#000000';
+            }
             await nextFrames(2);
 
             // canvas memudar pelan di atas latar baru -> tidak ada lompatan warna
@@ -554,9 +572,8 @@ export async function playVenomTransition(
         canvas.style.display = 'none';
         canvas.style.opacity = '1';
         canvas.style.transition = '';
-        root.style.removeProperty('background-color');
         root.style.removeProperty('--venom-old-bg');
-        container?.style.removeProperty('background-color');
+        // background-color inline dihapus di dalam rAF di bawah (setelah tema settle)
         if (outside) {
             outside.canvas.style.display = 'none';
             outside.canvas.style.opacity = '1';
@@ -573,10 +590,14 @@ export async function playVenomTransition(
         window.removeEventListener('resize', onResize);
         busy = false;
 
-        // nyalakan lagi transisi setelah tampilan akhir ter-render
-        requestAnimationFrame(() =>
+       requestAnimationFrame(() =>
             requestAnimationFrame(() => {
+                root.style.removeProperty('background-color');
+                container?.style.removeProperty('background-color');
+                outsideContainer?.style.removeProperty('background-color');
                 delete root.dataset.venomSettle;
+                // beri tahu header/ScrollTrigger bahwa tema sudah final (lihat Bug 2)
+                window.dispatchEvent(new Event('venom-settled'));
             }),
         );
     }

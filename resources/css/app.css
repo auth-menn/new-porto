@@ -5078,14 +5078,9 @@ html[data-venom-active='light'] [data-header-cluster] {
     color: #000 !important;
 }
 
-/* selama venom aktif, perubahan warna tema di balik canvas harus instan (tanpa blink).
-   Hanya transisi CSS yang dimatikan; animasi GSAP/keyframe tidak terpengaruh. */
-/* selama venom: warna memudar singkat & halus, bukan melompat */
-/* transisi per-elemen dimatikan; warna dianimasikan sekali di <html>.
-   Gambar dikecualikan agar crossfade foto terang/gelap tetap jalan. */
-html[data-venom-active] *:not(img):not([data-venom-canvas]),
-html[data-venom-active] *:not(img):not([data-venom-canvas])::before,
-html[data-venom-active] *:not(img):not([data-venom-canvas])::after {
+html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *),
+html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *)::before,
+html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *)::after {
     transition: none !important;
 }
 
@@ -5138,5 +5133,7 @@ html[data-venom-active] {
         --background 1000ms ease-in-out,
         --foreground 1000ms ease-in-out;
 }
+
+
 
 
