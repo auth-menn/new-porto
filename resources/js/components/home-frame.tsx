@@ -1010,7 +1010,7 @@ export function HomeFrame({
                             time < ABOUT_CONFIG.terminalInactiveAt
                         )
                             setTerminalInteractive(false);
-                        if (time <= 0.0001 && !wasAtStart) {
+                        if (time <= 0.0001 && !wasAtStart && window.scrollY < 8) {
                             wasAtStart = true;
                             gsap.set(
                                 [
