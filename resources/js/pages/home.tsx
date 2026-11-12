@@ -51,12 +51,14 @@ export default function Home({
             button,
             () => updateAppearance(next),
             {
-                color: isDark ? '#ffffff' : '#000000',
-                mode: 'cover',
+                // warna = tema LAMA (venom hitam menutup saat dark, lalu surut)
+                color: '#000000',
+                mode: isDark ? 'retreat' : 'cover',
                 container: usePanelScope ? panel : null,
                 outsideContainer: usePanelScope ? frame : null,
-                outsideColor: isDark ? '#000000' : '#ffffff',
+                outsideColor: '#ffffff',
                 coverMs: usePanelScope ? 6000 : 4500,
+                retreatMs: usePanelScope ? 6000 : 4500,
                 fadeOutMs: 1000,
             },
         );

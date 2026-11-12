@@ -5078,10 +5078,18 @@ html[data-venom-active='light'] [data-header-cluster] {
     color: #000 !important;
 }
 
-html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *),
-html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *)::before,
-html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *)::after {
+html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *):not(.contact-light-stage *),
+html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *):not(.contact-light-stage *)::before,
+html[data-venom-active] *:not(img):not([data-venom-canvas]):not(#fullscreen-menu):not(#fullscreen-menu *):not(.contact-light-stage *)::after {
     transition: none !important;
+}
+
+/* konten kontak ikut memudar selaras dengan warna halaman selama venom */
+html[data-venom-active] .contact-light-stage *,
+html[data-venom-active] .contact-light-stage *::before,
+html[data-venom-active] .contact-light-stage *::after {
+    transition-duration: 1000ms !important;
+    transition-timing-function: ease-in-out !important;
 }
 
 /* setelah canvas dilepas: tidak ada transisi apa pun selama 2 frame */
@@ -5131,4 +5139,4 @@ html[data-venom-active] {
         --page-fg 1000ms ease-in-out,
         --background 1000ms ease-in-out,
         --foreground 1000ms ease-in-out;
-}
+}   

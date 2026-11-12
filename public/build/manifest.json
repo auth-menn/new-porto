@@ -71,8 +71,8 @@
     "file": "assets/instrument-sans-600-normal-B9e8oLYv.woff",
     "src": "_instrument-sans-600-normal-B9e8oLYv.woff"
   },
-  "_journey-form-ByHa0Gt7.js": {
-    "file": "assets/journey-form-ByHa0Gt7.js",
+  "_journey-form-CuRMB5oJ.js": {
+    "file": "assets/journey-form-CuRMB5oJ.js",
     "name": "journey-form",
     "imports": [
       "_jsx-runtime-CQx9NjFZ.js",
@@ -114,8 +114,8 @@
       "_createLucideIcon-CRIhQVc0.js"
     ]
   },
-  "_project-form-DVU2n8cd.js": {
-    "file": "assets/project-form-DVU2n8cd.js",
+  "_project-form-DUs-qi8K.js": {
+    "file": "assets/project-form-DUs-qi8K.js",
     "name": "project-form",
     "imports": [
       "_jsx-runtime-CQx9NjFZ.js",
@@ -146,7 +146,7 @@
     "src": "node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-Bv5oZ-7l.css",
+    "file": "assets/app-BOjb0T9u.css",
     "name": "app",
     "names": [
       "app.css"
@@ -155,7 +155,7 @@
     "isEntry": true
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-CyhbI3B8.js",
+    "file": "assets/app-nBMtsInS.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -182,7 +182,7 @@
     ]
   },
   "resources/js/components/terminal.tsx": {
-    "file": "assets/terminal-DeqaI-nO.js",
+    "file": "assets/terminal-BbWAX3Dv.js",
     "name": "terminal",
     "src": "resources/js/components/terminal.tsx",
     "isDynamicEntry": true,
@@ -216,7 +216,7 @@
     ]
   },
   "resources/js/pages/dashboard.tsx": {
-    "file": "assets/dashboard-CzTfsqbw.js",
+    "file": "assets/dashboard-CdoyXUr8.js",
     "name": "dashboard",
     "src": "resources/js/pages/dashboard.tsx",
     "isDynamicEntry": true,
@@ -238,7 +238,7 @@
     ]
   },
   "resources/js/pages/home.tsx": {
-    "file": "assets/home-BRjTUy5H.js",
+    "file": "assets/home-DgHtNjfD.js",
     "name": "home",
     "src": "resources/js/pages/home.tsx",
     "isDynamicEntry": true,
@@ -255,31 +255,31 @@
     ]
   },
   "resources/js/pages/journeys/create.tsx": {
-    "file": "assets/create-DpT6-1ZE.js",
+    "file": "assets/create-DNWKpBJe.js",
     "name": "create",
     "src": "resources/js/pages/journeys/create.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-CQx9NjFZ.js",
       "_dist-6Gie4iCs.js",
-      "_journey-form-ByHa0Gt7.js",
+      "_journey-form-CuRMB5oJ.js",
       "resources/js/app.tsx"
     ]
   },
   "resources/js/pages/journeys/edit.tsx": {
-    "file": "assets/edit-DbEDkcT7.js",
+    "file": "assets/edit-CHXxhbzv.js",
     "name": "edit",
     "src": "resources/js/pages/journeys/edit.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-CQx9NjFZ.js",
       "_dist-6Gie4iCs.js",
-      "_journey-form-ByHa0Gt7.js",
+      "_journey-form-CuRMB5oJ.js",
       "resources/js/app.tsx"
     ]
   },
   "resources/js/pages/journeys/index.tsx": {
-    "file": "assets/journeys-DdCxHhro.js",
+    "file": "assets/journeys-DhXRJIO3.js",
     "name": "journeys",
     "src": "resources/js/pages/journeys/index.tsx",
     "isDynamicEntry": true,
@@ -294,7 +294,7 @@
     ]
   },
   "resources/js/pages/menu-images/index.tsx": {
-    "file": "assets/menu-images-C88v43F3.js",
+    "file": "assets/menu-images-BCFRk3ED.js",
     "name": "menu-images",
     "src": "resources/js/pages/menu-images/index.tsx",
     "isDynamicEntry": true,
@@ -310,7 +310,7 @@
     ]
   },
   "resources/js/pages/projects/create.tsx": {
-    "file": "assets/create-Dati5grT.js",
+    "file": "assets/create-CsqJRL6c.js",
     "name": "create",
     "src": "resources/js/pages/projects/create.tsx",
     "isDynamicEntry": true,
@@ -318,11 +318,11 @@
       "_jsx-runtime-CQx9NjFZ.js",
       "_dist-6Gie4iCs.js",
       "resources/js/app.tsx",
-      "_project-form-DVU2n8cd.js"
+      "_project-form-DUs-qi8K.js"
     ]
   },
   "resources/js/pages/projects/edit.tsx": {
-    "file": "assets/edit-DJ161_Go.js",
+    "file": "assets/edit-lFcL88SZ.js",
     "name": "edit",
     "src": "resources/js/pages/projects/edit.tsx",
     "isDynamicEntry": true,
@@ -330,11 +330,11 @@
       "_jsx-runtime-CQx9NjFZ.js",
       "_dist-6Gie4iCs.js",
       "resources/js/app.tsx",
-      "_project-form-DVU2n8cd.js"
+      "_project-form-DUs-qi8K.js"
     ]
   },
   "resources/js/pages/projects/index.tsx": {
-    "file": "assets/projects-WtWFu-lf.js",
+    "file": "assets/projects-D9J1wEFf.js",
     "name": "projects",
     "src": "resources/js/pages/projects/index.tsx",
     "isDynamicEntry": true,

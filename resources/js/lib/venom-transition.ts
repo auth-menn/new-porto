@@ -304,6 +304,7 @@ function draw(r: Renderer, progress: number, time: number) {
 }
 
 const SWAP_AT_PROGRESS = 0.4;
+const SWAP_RETREAT_AT_PROGRESS = 0.45;
 
 function run(
     r: Renderer,
@@ -546,19 +547,55 @@ const onResize = () => {
                     : []),
             ]);
         } else {
-            canvas.style.opacity = '0';
-            draw(r, 1, 0);
-            await fadeCanvas(canvas, 1, 150);
-            applyTheme();
+            const invert = (hex: string) =>
+                hex.toLowerCase() === '#ffffff' ? '#000000' : '#ffffff';
+            const holder = container ?? root;
+            const newBg = invert(options.color ?? '#000000');
+            const newOutsideBg = invert(options.outsideColor ?? '#ffffff');
 
-            let released = false;
+            // 1) venom menutup penuh seketika (warnanya sama dengan tema lama, tidak terlihat)
+            lastProgress = 1;
+            const t0 = performance.now() / 1000;
+            draw(r, 1, t0);
+            if (outside) {
+                draw(outside, 1, t0);
+            }
 
-            await run(r, 1, 0, options.retreatMs ?? 3200, (progress) => {
-                if (!released && progress < 0.15) {
-                    released = true;
-                    delete root.dataset.venomActive;
-                }
-            });
+            // 2) latar di belakang canvas langsung warna tema BARU (tertutup venom, tidak terlihat)
+            holder.style.backgroundColor = newBg;
+            if (outsideContainer) {
+                outsideContainer.style.backgroundColor = newOutsideBg;
+            }
+
+            // 3) venom surut dulu; tema baru baru diganti setelah venom mulai surut
+            let swapped = false;
+
+            await run(
+                r,
+                1,
+                0,
+                options.retreatMs ?? 3200,
+                (progress) => {
+                    lastProgress = progress;
+                    if (!swapped && progress <= SWAP_RETREAT_AT_PROGRESS) {
+                        swapped = true;
+                        window.setTimeout(applyTheme, 0);
+                    }
+                },
+                outside
+                    ? { renderer: outside, origin, options: outsideOptions }
+                    : undefined,
+                () => {
+                    maxSize = 560;
+                    relayout();
+                },
+            );
+
+            if (!swapped) {
+                applyTheme();
+            }
+
+            await nextFrames(2);
         }
 
         return true;
