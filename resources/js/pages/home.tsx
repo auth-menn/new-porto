@@ -57,9 +57,9 @@ export default function Home({
                 container: usePanelScope ? panel : null,
                 outsideContainer: usePanelScope ? frame : null,
                 outsideColor: '#ffffff',
-                coverMs: usePanelScope ? 6000 : 4500,
-                retreatMs: usePanelScope ? 6000 : 4500,
-                fadeOutMs: 1000,
+                coverMs: usePanelScope ? 3800 : 3000,
+                retreatMs: usePanelScope ? 3800 : 3000,
+                fadeOutMs: 700,
             },
         );
     };

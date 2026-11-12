@@ -303,8 +303,9 @@ function draw(r: Renderer, progress: number, time: number) {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
-const SWAP_AT_PROGRESS = 0.4;
+const SWAP_AT_PROGRESS = 0.55;
 const SWAP_RETREAT_AT_PROGRESS = 0.45;
+const START_PROGRESS = 0.2;
 
 function run(
     r: Renderer,
@@ -341,7 +342,7 @@ function run(
             }
 
             const t = Math.min(1, (now - startedAt) / duration);
-            const eased = 0.5 - 0.5 * Math.cos(Math.PI * t);
+            const eased = 1 - Math.pow(1 - t, 2);
             const progress = from + (to - from) * eased;
 
             draw(r, progress, now / 1000);
@@ -507,7 +508,7 @@ const onResize = () => {
 
             await run(
                 r,
-                0,
+                START_PROGRESS,
                 1,
                 options.coverMs ?? 3000,
                 (progress) => {
