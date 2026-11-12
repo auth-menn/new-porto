@@ -5081,21 +5081,12 @@ html[data-venom-active='light'] [data-header-cluster] {
 /* selama venom aktif, perubahan warna tema di balik canvas harus instan (tanpa blink).
    Hanya transisi CSS yang dimatikan; animasi GSAP/keyframe tidak terpengaruh. */
 /* selama venom: warna memudar singkat & halus, bukan melompat */
-html[data-venom-active] *:not([data-venom-canvas]),
-html[data-venom-active] *:not([data-venom-canvas])::before,
-html[data-venom-active] *:not([data-venom-canvas])::after {
-    transition-property: color, background-color, border-color, fill, stroke,
-        opacity, text-decoration-color !important;
-    transition-duration: 800ms !important;
-    transition-delay: 0s !important;
-    transition-timing-function: ease-out !important;
-}
-
-html[data-venom-active][data-venom-scope='panel'] .home-frame,
-html[data-venom-active][data-venom-scope='panel'] .home-frame *,
-html[data-venom-active][data-venom-scope='panel'] .home-frame *::before,
-html[data-venom-active][data-venom-scope='panel'] .home-frame *::after {
-    transition-duration: 300ms !important;
+/* transisi per-elemen dimatikan; warna dianimasikan sekali di <html>.
+   Gambar dikecualikan agar crossfade foto terang/gelap tetap jalan. */
+html[data-venom-active] *:not(img):not([data-venom-canvas]),
+html[data-venom-active] *:not(img):not([data-venom-canvas])::before,
+html[data-venom-active] *:not(img):not([data-venom-canvas])::after {
+    transition: none !important;
 }
 
 /* setelah canvas dilepas: tidak ada transisi apa pun selama 2 frame */
@@ -5133,3 +5124,19 @@ html[data-venom-active]:not([data-venom-scope='panel']) .journey-section,
 html[data-venom-active]:not([data-venom-scope='panel']) .contact-section {
     transition-property: color, border-color, fill, stroke !important;
 }
+
+@property --page-bg { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+@property --page-fg { syntax: '<color>'; inherits: true; initial-value: #000000; }
+@property --background { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+@property --foreground { syntax: '<color>'; inherits: true; initial-value: #000000; }
+
+/* satu transisi di root; seluruh halaman mengikuti lewat var() */
+html[data-venom-active] {
+    transition:
+        --page-bg 1000ms ease-in-out,
+        --page-fg 1000ms ease-in-out,
+        --background 1000ms ease-in-out,
+        --foreground 1000ms ease-in-out;
+}
+
+

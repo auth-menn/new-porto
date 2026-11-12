@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { flushSync } from 'react-dom';
 import { Head } from '@inertiajs/react';
 import { HomeFrame } from '@/components/home-frame';
 import { SiteHeader } from '@/components/site-header';
@@ -50,7 +49,7 @@ export default function Home({
 
         void playVenomTransition(
             button,
-            () => flushSync(() => updateAppearance(next)),
+            () => updateAppearance(next),
             {
                 color: isDark ? '#ffffff' : '#000000',
                 mode: 'cover',

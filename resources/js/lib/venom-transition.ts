@@ -207,6 +207,7 @@ function createCanvas(): HTMLCanvasElement {
         zIndex: '-1',
         pointerEvents: 'none',
         display: 'none',
+        willChange: 'opacity',
     });
 
     return canvas;
@@ -302,7 +303,7 @@ function draw(r: Renderer, progress: number, time: number) {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
-const SWAP_AT_PROGRESS = 0.5;
+const SWAP_AT_PROGRESS = 0.4;
 
 function run(
     r: Renderer,
@@ -311,11 +312,33 @@ function run(
     duration: number,
     onFrame?: (progress: number) => void,
     outside?: { renderer: Renderer; origin: HTMLElement; options: VenomOptions },
+    onSlow?: () => void,
 ) {
     return new Promise<void>((resolve) => {
         const startedAt = performance.now();
+        let last = startedAt;
+        let sum = 0;
+        let count = 0;
+        let checked = false;
 
         const frame = (now: number) => {
+            if (!checked) {
+                if (count > 0) {
+                    sum += now - last;
+                }
+
+                last = now;
+                count += 1;
+
+                if (count === 10) {
+                    checked = true;
+
+                    if (sum / 9 > 26) {
+                        onSlow?.();
+                    }
+                }
+            }
+
             const t = Math.min(1, (now - startedAt) / duration);
             const eased = 0.5 - 0.5 * Math.cos(Math.PI * t);
             const progress = from + (to - from) * eased;
@@ -433,10 +456,11 @@ export async function playVenomTransition(
             y: Math.max(0, Math.min(1, 1 - originY)),
         },
     };
+    let maxSize = options.maxSize;
     const onResize = () => {
-        layout(r, origin, options);
+        layout(r, origin, { ...options, maxSize });
         if (outside) {
-            layout(outside, origin, outsideOptions);
+            layout(outside, origin, { ...outsideOptions, maxSize });
         }
     };
 
@@ -474,18 +498,22 @@ export async function playVenomTransition(
                 (progress) => {
                     if (!swapped && progress >= SWAP_AT_PROGRESS) {
                         swapped = true;
-                        applyTheme();
+                        window.setTimeout(applyTheme, 0);
                     }
                 },
                 outside
                     ? { renderer: outside, origin, options: outsideOptions }
                     : undefined,
+                () => {
+                    // perangkat lambat: turunkan resolusi canvas
+                    maxSize = 560;
+                    onResize();
+                },
             );
 
             if (!swapped) {
                 applyTheme();
             }
-            applyTheme();
 
             // Lepas warna latar lama: latar di BAWAH canvas kini sudah tema baru
             root.style.removeProperty('background-color');
