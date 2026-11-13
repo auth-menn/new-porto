@@ -38,7 +38,7 @@ const translations = {
         arabic: 'Bahasa Arab',
         pages: 'Halaman',
         seoTitle: 'Firman Maulana Syabani | IT Developer',
-        seoDescription: 'Portofolio Firman Maulana Syabani, IT Developer, yang memuat profil, proyek, perjalanan, dan informasi kontak.',
+        seoDescription: 'Dari ide menjadi pengalaman digital, Firman Maulana Syabani merancang solusi web yang fungsional, berkarakter, dan siap berkembang.',
         seoImageAlt: 'Logo portofolio Firman Maulana Syabani',
         home: 'Beranda',
         about: 'Tentang',

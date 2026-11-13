@@ -4,7 +4,7 @@ return [
     'canonical_url' => 'https://auth-men.my.id',
     'home' => [
         'title' => 'Firman Maulana Syabani | IT Developer',
-        'description' => 'Portofolio Firman Maulana Syabani, IT Developer, yang memuat profil, proyek, perjalanan, dan informasi kontak.',
+        'description' => 'Dari ide menjadi pengalaman digital, Firman Maulana Syabani merancang solusi web yang fungsional, berkarakter, dan siap berkembang.',
         'social_image_path' => '/images/logo.webp',
     ],
     'person' => [
