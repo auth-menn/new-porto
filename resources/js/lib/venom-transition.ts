@@ -389,7 +389,6 @@ function mount(r: Renderer, container: HTMLElement | null) {
     }
 }
 
-// tunggu beberapa frame supaya React & CSS selesai menerapkan tema sebelum canvas dilepas
 function nextFrames(count = 2) {
     return new Promise<void>((resolve) => {
         let left = count;
