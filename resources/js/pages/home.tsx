@@ -31,6 +31,15 @@ export default function Home({
     const { resolvedAppearance, updateAppearance } = useAppearance();
     const { t } = useLang();
     const [themeTransitionsReady, setThemeTransitionsReady] = useState(false);
+    const [loaderFinished, setLoaderFinished] = useState(() => {
+        if (typeof document === 'undefined') {
+            return true;
+        }
+
+        const loader = document.getElementById('loader');
+
+        return !loader || loader.classList.contains('is-done');
+    });
     const isDark = resolvedAppearance === 'dark';
         
     const toggleAppearance = () => {
@@ -71,6 +80,30 @@ export default function Home({
         });
 
         return () => cancelAnimationFrame(frame);
+    }, []);
+
+    useEffect(() => {
+        const loader = document.getElementById('loader');
+
+        if (!loader || loader.classList.contains('is-done')) {
+            setLoaderFinished(true);
+
+            return;
+        }
+
+        const observer = new MutationObserver(() => {
+            if (loader.classList.contains('is-done')) {
+                setLoaderFinished(true);
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(loader, {
+            attributes: true,
+            attributeFilter: ['class'],
+        });
+
+        return () => observer.disconnect();
     }, []);
 
     return (
@@ -116,6 +149,7 @@ export default function Home({
                 projects={projects}
                 journeys={journeys}
                 themeTransitionsReady={themeTransitionsReady}
+                loaderFinished={loaderFinished}
             />
         </>
     );
