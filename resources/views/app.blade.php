@@ -101,6 +101,24 @@
             }
         </style>
 
+
+        <style>
+            .eye-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:#fff}
+            .eye-loader.is-done{display:none}
+            .eye-stage{width:min(94vw,1200px);aspect-ratio:2172/724;opacity:0;transition:opacity .7s ease}
+            .is-show .eye-stage,.is-zoom .eye-stage{opacity:1}
+            .eye-zoom{--px:74.63;--py:44.7;--s:85;
+              --tx:calc((50 - var(--px)) * 1% * var(--s));
+              --ty:calc((50 - var(--py)) * 1% * var(--s));
+              width:100%;height:100%;will-change:transform;transform:translate3d(0,0,0) scale(1)}
+            .is-zoom .eye-zoom{animation:eye-dive 3.8s cubic-bezier(.5,0,.3,1) forwards}
+            .is-zoom{animation:eye-reveal 3.8s ease-in-out forwards}
+            @keyframes eye-dive{to{transform:translate3d(var(--tx),var(--ty),0) scale(var(--s))}}
+            @keyframes eye-reveal{0%,76%{opacity:1}100%{opacity:0}}
+            #eyes{display:block;width:100%;height:100%;user-select:none;pointer-events:none}
+            @media (prefers-reduced-motion:reduce){.eye-loader{display:none}}
+        </style>
+
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -114,6 +132,9 @@
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
+        <div class="eye-loader" id="loader" aria-hidden="true">
+            <div class="eye-stage"><div class="eye-zoom" id="zoom"><canvas id="eyes" width="2172" height="724"></canvas></div></div>
+        </div>
         <x-inertia::app />
     </body>
 </html>
