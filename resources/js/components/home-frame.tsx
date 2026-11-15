@@ -34,6 +34,7 @@ type HomeFrameProps = {
     projects: Project[];
     journeys: Journey[];
     themeTransitionsReady: boolean;
+    loaderFinished: boolean;
 };
 
 type FrameShape = {
@@ -208,6 +209,7 @@ export function HomeFrame({
     projects,
     journeys,
     themeTransitionsReady,
+    loaderFinished,
 }: HomeFrameProps) {
     const frameRef = useRef<HTMLElement>(null);
     const sceneRef = useRef<HTMLDivElement>(null);
@@ -712,7 +714,7 @@ export function HomeFrame({
     }, []);
 
     useEffect(() => {
-        if (!heroReady || heroEntered) return;
+        if (!heroReady || heroEntered || !loaderFinished) return;
 
         if (reducedMotion || directAboutVisit) {
             setHeroEntered(true);
@@ -726,6 +728,7 @@ export function HomeFrame({
         directAboutVisit,
         heroEntered,
         heroReady,
+        loaderFinished,
         markHeroEntered,
         reducedMotion,
     ]);
@@ -1305,7 +1308,7 @@ export function HomeFrame({
                     >
                         <main
                             ref={frameRef}
-                            data-hero-ready={heroReady}
+                            data-hero-ready={heroReady && loaderFinished}
                             data-hero-entered={heroEntered}
                             data-about-direct={directAboutVisit}
                             className={`home-frame relative isolate h-dvh w-full overflow-hidden overflow-x-clip bg-[var(--frame-bg)] text-[var(--frame-fg)] transition-colors duration-500 ease-in-out motion-reduce:transition-none ${transitionReady}`}
@@ -1516,7 +1519,7 @@ export function HomeFrame({
                         >
                             <ProjectSummary
                                 projects={projects}
-                                heroReady={heroReady}
+                                heroReady={heroReady && loaderFinished}
                                 heroEntered={heroEntered}
                                 reducedMotion={reducedMotion}
                                 onEntranceComplete={markHeroEntered}
