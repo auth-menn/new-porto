@@ -79,11 +79,13 @@ Route::get('/', function (): InertiaResponse {
 Route::get('sitemap.xml', function () {
     $canonicalUrl = rtrim((string) config('seo.canonical_url'), '/').'/';
     $escapedCanonicalUrl = htmlspecialchars($canonicalUrl, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+    $lastmod = htmlspecialchars((string) config('seo.lastmod', '2026-11-16'), ENT_XML1 | ENT_QUOTES, 'UTF-8');
     $sitemap = implode("\n", [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
         '    <url>',
         '        <loc>'.$escapedCanonicalUrl.'</loc>',
+        '        <lastmod>'.$lastmod.'</lastmod>',
         '    </url>',
         '</urlset>',
     ]);
