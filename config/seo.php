@@ -2,9 +2,10 @@
 
 return [
     'canonical_url' => 'https://auth-men.my.id',
+    'lastmod' => '2026-11-16',
     'home' => [
         'title' => 'Firman Maulana Syabani | IT Developer',
-        'description' => 'Dari ide menjadi pengalaman digital, Firman Maulana Syabani merancang solusi web yang fungsional, berkarakter, dan siap berkembang.',
+        'description' => 'Dari ide menjadi pengalaman digital, Firman Maulana Syabani merancang solusi digital yang fungsional, berkarakter, dan siap berkembang.',
         'social_image_path' => '/images/logo.webp',
     ],
     'person' => [
