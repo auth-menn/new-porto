@@ -137,7 +137,7 @@
   function run(){
     var my=++token;
     if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){
-      loader.className='eye-loader is-done';document.documentElement.style.overflow='';return;
+      loader.className='eye-loader is-done';document.documentElement.style.overflow='';window.dispatchEvent(new Event('eye-loader:done'));return;
     }
     document.documentElement.style.overflow='hidden';
     loader.className='eye-loader';
@@ -170,7 +170,7 @@
     });
   }
   zoom.addEventListener('animationend',function(e){
-    if(e.target===zoom){loader.className='eye-loader is-done';document.documentElement.style.overflow='';stopLoop()}
+    if(e.target===zoom){loader.className='eye-loader is-done';document.documentElement.style.overflow='';stopLoop();window.dispatchEvent(new Event('eye-loader:done'))}
   });
   function onLoad(){
     if(++loaded<2)return;
