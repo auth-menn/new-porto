@@ -1,13 +1,31 @@
+import { useEffect, useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 
 export default function NotFound() {
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        const loader = document.getElementById('loader');
+
+        if (!loader || loader.classList.contains('is-done')) {
+            setIsReady(true);
+            return;
+        }
+
+        const showNotFound = () => setIsReady(true);
+
+        window.addEventListener('eye-loader:done', showNotFound);
+
+        return () => window.removeEventListener('eye-loader:done', showNotFound);
+    }, []);
+
     return (
         <>
             <Head title="404">
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
-            <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center text-foreground">
+            <main className={`not-found-page flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center text-foreground${isReady ? ' is-ready' : ''}`}>
                 <svg
                     className="not-found-face"
                     viewBox="0 0 320 380"
