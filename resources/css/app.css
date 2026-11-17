@@ -3923,35 +3923,35 @@ html:not(.js) .project-photo {
     animation: not-found-eyes 1s 0.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
-.not-found-face__eye-lid,
-.not-found-face__pupil {
+.not-found-page.is-ready .not-found-face__eye-lid,
+.not-found-page.is-ready .not-found-face__pupil {
     animation-duration: 4s;
     animation-delay: 1.3s;
     animation-iteration-count: infinite;
 }
 
-.not-found-face__eye-lid {
+.not-found-page.is-ready .not-found-face__eye-lid {
     animation-name: not-found-eye-lid;
 }
 
-.not-found-face__mouth-left,
-.not-found-face__mouth-right {
+.not-found-page.is-ready .not-found-face__mouth-left,
+.not-found-page.is-ready .not-found-face__mouth-right {
     animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-.not-found-face__mouth-left {
+.not-found-page.is-ready .not-found-face__mouth-left {
     animation-name: not-found-mouth-left;
 }
 
-.not-found-face__mouth-right {
+.not-found-page.is-ready .not-found-face__mouth-right {
     animation-name: not-found-mouth-right;
 }
 
-.not-found-face__nose {
+.not-found-page.is-ready .not-found-face__nose {
     animation-name: not-found-nose;
 }
 
-.not-found-face__pupil {
+.not-found-page.is-ready .not-found-face__pupil {
     animation-name: not-found-pupil;
 }
 
@@ -4045,17 +4045,17 @@ html:not(.js) .project-photo {
         animation: none;
     }
 
-    .not-found-face__eyes,
-    .not-found-face__eye-lid,
-    .not-found-face__mouth-left,
-    .not-found-face__mouth-right,
-    .not-found-face__nose,
-    .not-found-face__pupil {
+    .not-found-page.is-ready .not-found-face__eyes,
+    .not-found-page.is-ready .not-found-face__eye-lid,
+    .not-found-page.is-ready .not-found-face__mouth-left,
+    .not-found-page.is-ready .not-found-face__mouth-right,
+    .not-found-page.is-ready .not-found-face__nose,
+    .not-found-page.is-ready .not-found-face__pupil {
         animation: none;
     }
 
-    .not-found-face__mouth-left,
-    .not-found-face__mouth-right {
+    .not-found-page.is-ready .not-found-face__mouth-left,
+    .not-found-page.is-ready .not-found-face__mouth-right {
         stroke-dashoffset: 0;
     }
 }
